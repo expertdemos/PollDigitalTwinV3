@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Urban Environment Twin — Air Quality (v3)</title>
+<style>
+:root{
+  --purple:#A100FF; --purple-deep:#460073; --purple-050:#F5EEFB; --purple-100:#ECDDF9;
+  --blue:#1466E0; --turq:#00B3B8; --orange:#E8830C; --red:#E5484D; --green:#0F9D6B; --teal:#0FA3A3;
+  --ink:#1A1523; --ink-2:#443B54; --ink-3:#6B6480; --line:#ECEAF1; --line-2:#DED9E8;
+  --bg:#FFFFFF; --surface:#FBFAFC; --surface-2:#F6F4FA;
+  --shadow-sm:0 1px 2px rgba(30,20,50,.06),0 1px 3px rgba(30,20,50,.05);
+  --shadow-md:0 6px 20px rgba(50,25,90,.08),0 2px 6px rgba(50,25,90,.05);
+  --shadow-lg:0 18px 48px rgba(50,25,90,.14);
+  --r:10px; --r-lg:16px;
+  --font:"Graphik","Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  --mono:"Cascadia Code",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--font);color:var(--ink);background:var(--bg);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;font-weight:600;letter-spacing:-.01em;line-height:1.2}
+p{margin:0 0 .6em}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
+::selection{background:var(--purple-100)}
+:focus-visible{outline:2px solid var(--purple);outline-offset:2px;border-radius:4px}
+#app{display:flex;min-height:100vh}
+.sidebar{width:262px;flex:0 0 262px;background:var(--bg);border-right:1px solid var(--line);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.brand{padding:20px 20px 16px;border-bottom:1px solid var(--line)}
+.brand .mark{display:flex;align-items:center;gap:10px}
+.brand .glyph{width:30px;height:30px;flex:0 0 30px}
+.brand .name{font-size:13.5px;font-weight:600;line-height:1.15}
+.brand .sub{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-top:4px}
+.nav{padding:10px 12px;flex:1}
+.nav-item{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:none;border:none;border-radius:var(--r);padding:10px;color:var(--ink-2);font-size:13.5px;font-weight:500;transition:.15s}
+.nav-item:hover{background:var(--surface-2)}
+.nav-item.active{background:var(--purple-050);color:var(--purple-deep);font-weight:600}
+.nav-item .ic{width:18px;height:18px;flex:none}
+.nav-num{flex:0 0 22px;height:22px;border-radius:7px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--ink-3)}
+.nav-item.active .nav-num{background:var(--purple);color:#fff}
+.sidecard{margin:8px 14px 14px;padding:12px 13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);font-size:12px}
+.sidecard .row{display:flex;justify-content:space-between;gap:8px;padding:3px 0;color:var(--ink-3)}
+.sidecard .row b{color:var(--ink);font-weight:600}
+.main-wrap{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{height:58px;flex:0 0 58px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 26px;background:rgba(255,255,255,.86);backdrop-filter:blur(8px);position:sticky;top:0;z-index:40}
+.topbar .crumb{font-size:13px;color:var(--ink-3)}
+.topbar .crumb b{color:var(--ink);font-weight:600}
+.topbar .spacer{flex:1}
+.main{padding:28px 34px 80px;max-width:1280px;width:100%;margin:0 auto;flex:1}
+@media(max-width:1100px){.main{padding:24px 22px 70px}}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-2);background:#fff;color:var(--ink);border-radius:var(--r);padding:9px 15px;font-size:13.5px;font-weight:600;transition:.15s;white-space:nowrap}
+.btn:hover{border-color:var(--purple);color:var(--purple-deep);box-shadow:var(--shadow-sm)}
+.btn.primary{background:var(--purple-deep);border-color:var(--purple-deep);color:#fff}
+.btn.primary:hover{background:#5a0090;color:#fff}
+.btn.sm{padding:6px 11px;font-size:12.5px;border-radius:8px}
+.btn .ic,.btn svg{width:16px;height:16px}
+.btn.sm .ic{width:14px;height:14px}
+.btnrow{display:flex;gap:9px;flex-wrap:wrap}
+.ic{flex:none;vertical-align:-.16em}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+.card.pad{padding:20px 22px}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--purple);font-weight:600}
+.h-page{font-size:26px;letter-spacing:-.02em;margin:6px 0 4px}
+.sub{color:var(--ink-3);font-size:14px}
+.section-head{margin:30px 0 14px}
+.section-head h2{font-size:19px}
+.section-head .d{color:var(--ink-3);font-size:13.5px;margin-top:2px}
+.divider{height:1px;background:var(--line);margin:20px 0}
+.muted{color:var(--ink-3)}
+.mono{font-family:var(--mono)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:100px;font-size:11.5px;font-weight:600;border:1px solid var(--line-2);background:var(--surface)}
+.tag-neutral{color:var(--ink-2);background:var(--surface);border-color:var(--line-2)}
+.tag-live{color:#0b7a53;background:#E7F6EF;border-color:#C9EBDC}
+.tag-agent{color:#5b1aa8;background:#F3E9FB;border-color:#E3CDEF}
+.tag-demo{color:#8a5212;background:#FDF0E0;border-color:#F7D8B4}
+.tag-good{color:#0b7a53;background:#E7F6EF;border-color:#C9EBDC}
+.tag-mod{color:#8a6d10;background:#FBF3D6;border-color:#F1E3AE}
+.tag-usg{color:#8a5212;background:#FDF0E0;border-color:#F7D8B4}
+.tag-unh{color:#a5292e;background:#FCE9E9;border-color:#F5C9CB}
+.tag-vunh{color:#6d2f8f;background:#F3E9F8;border-color:#E3CDEF}
+.field{margin-bottom:14px}
+.inp,select.inp,textarea.inp{width:100%;border:1px solid var(--line-2);border-radius:9px;padding:9px 11px;background:#fff;transition:.15s}
+.inp:focus,textarea.inp:focus{border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-050);outline:none}
+.sel-hero{padding:26px 0 8px;max-width:1000px;margin:0 auto}
+.jumpbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0 2px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.jumpbar .jb-label{font-size:12.5px;font-weight:700;color:var(--ink-2);display:flex;align-items:center;gap:8px;white-space:nowrap}
+.jumpbar select{flex:1;min-width:200px;border:1px solid var(--line-2);border-radius:10px;padding:10px 12px;background:#fff;font-size:14px;font-weight:600;color:var(--ink)}
+.jumpbar select:focus{border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-050);outline:none}
+.chipgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:8px}
+.citychip{position:relative;display:flex;align-items:center;gap:9px;text-align:left;border:1px solid var(--line-2);background:#fff;border-radius:11px;padding:8px 10px;transition:.14s;cursor:pointer;min-width:0}
+.citychip:hover{border-color:var(--purple);background:var(--purple-050);box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+.citychip .cf{font-size:18px;line-height:1;flex:none}
+.citychip .cbody{min-width:0}
+.citychip .cn{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.citychip .cc{font-size:10.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.citychip.feat{border-color:var(--purple-100);background:linear-gradient(180deg,#fff,#FCF7FE)}
+.grp-label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin:22px 0 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.grp-label .gl-note{font-size:10.5px;letter-spacing:0;text-transform:none;color:var(--ink-3);font-weight:500}
+.scene-block{max-width:1000px;margin:0 auto}
+.scene-wrap{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--purple-100);background:radial-gradient(130% 130% at 82% -10%, #7a1fb8 0%, #560093 42%, #3a0068 100%);box-shadow:var(--shadow-md)}
+.scene-wrap svg{display:block;width:100%;height:auto}
+.scene-eyebrow{position:absolute;top:15px;left:0;right:0;text-align:center;z-index:5;pointer-events:none;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#EBD6FF;font-weight:700}
+.scene-heading{text-align:center;font-size:32px;letter-spacing:-.02em;color:var(--ink);font-weight:600;margin:20px 0 2px}
+.scene-heading .sh-eyebrow{display:block;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--purple);font-weight:700;margin-bottom:6px}
+@media(max-width:640px){.scene-heading{font-size:24px}}
+.ln{stroke:#FFFFFF;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw 2.2s ease forwards;animation-delay:var(--d,0s)}
+.ln.thin{stroke-width:1.1;stroke:rgba(255,255,255,.62)}
+.ln.accent{stroke:#D9B8FF}
+@keyframes draw{to{stroke-dashoffset:0}}
+.wind{stroke:#FFFFFF;stroke-width:1.5;fill:none;stroke-linecap:round;opacity:.6;stroke-dasharray:14 90;animation:windflow 3.2s linear infinite}
+.wind.w2{stroke:#EBD6FF;animation-duration:4s;opacity:.5}
+.wind.w3{stroke:#C79BF2;animation-duration:2.6s;opacity:.42}
+@keyframes windflow{from{stroke-dashoffset:104}to{stroke-dashoffset:0}}
+.pit{fill:#FFFFFF;opacity:0;animation:drift 6s linear infinite}
+@keyframes drift{0%{opacity:0;transform:translateX(0)}8%{opacity:.7}92%{opacity:.7}100%{opacity:0;transform:translateX(120px)}}
+.car-g{animation:roll 7s linear infinite}
+@keyframes roll{0%{transform:translateX(-40px)}100%{transform:translateX(360px)}}
+.car-g.car2{animation-duration:9s;animation-delay:-3s}
+.wheel{transform-box:fill-box;transform-origin:center;animation:spin 1.1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tree-sway{transform-box:fill-box;transform-origin:bottom center;animation:sway 5s ease-in-out infinite}
+.tree-sway.s2{animation-duration:6.5s;animation-delay:-1.5s}
+.tree-sway.s3{animation-duration:4.2s;animation-delay:-.8s}
+@keyframes sway{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.4deg)}}
+.sun-ray{transform-box:fill-box;transform-origin:center;animation:pulse 4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.smoke{fill:none;stroke:rgba(255,255,255,.7);stroke-width:1.1;opacity:0;animation:rise 4.5s ease-in infinite}
+.smoke.k2{animation-delay:-1.5s}.smoke.k3{animation-delay:-3s}
+@keyframes rise{0%{opacity:0;transform:translateY(0) scale(.6)}20%{opacity:.6}100%{opacity:0;transform:translateY(-26px) scale(1.3)}}
+.bird{animation:fly 11s linear infinite;opacity:.7}
+@keyframes fly{0%{transform:translate(-30px,6px)}100%{transform:translate(420px,-10px)}}
+.bird .wingp{animation:flap .5s ease-in-out infinite}
+@keyframes flap{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.55)}}
+.logo-air{transform-box:fill-box;transform-origin:center;animation:logospin 14s linear infinite}
+@keyframes logospin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.ln{animation:none;stroke-dashoffset:0}.wind,.pit,.car-g,.wheel,.tree-sway,.sun-ray,.smoke,.bird,.bird .wingp,.logo-air{animation:none}.pit,.smoke{opacity:.4}}
+.loadwrap{max-width:520px;margin:80px auto;text-align:center}
+.spinner{width:46px;height:46px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--purple);margin:0 auto 20px;animation:spin 1s linear infinite}
+.loadsteps{text-align:left;max-width:360px;margin:20px auto 0;font-size:13px;color:var(--ink-3)}
+.loadsteps div{padding:5px 0;display:flex;gap:8px;align-items:center}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{border:1px solid var(--line);border-radius:14px;padding:15px 17px;background:#fff;box-shadow:var(--shadow-sm)}
+.kpi .k{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.kpi .v{font-size:25px;font-weight:700;letter-spacing:-.02em;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi .m{font-size:12px;color:var(--ink-3);margin-top:2px}
+.maplayout{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start}
+@media(max-width:1000px){.maplayout{grid-template-columns:1fr}}
+.mapwrap{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#0f1020}
+.mapwrap svg{display:block;width:100%;height:auto}
+.maplegend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--ink-2);margin-top:10px;align-items:center}
+.maplegend i{width:12px;height:12px;border-radius:3px;display:inline-block;vertical-align:-2px;margin-right:5px}
+.stationdot{cursor:pointer;transition:.15s}
+.stationdot:hover{stroke:#fff;stroke-width:2}
+.mapctl{position:absolute;top:12px;left:12px;display:flex;gap:6px;flex-wrap:wrap;z-index:5}
+.mapchip{background:rgba(255,255,255,.94);border:1px solid var(--line-2);border-radius:100px;padding:5px 11px;font-size:11.5px;font-weight:600;color:var(--ink-2)}
+.mapchip.on{background:var(--purple-deep);color:#fff;border-color:var(--purple-deep)}
+.tooltip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;border-radius:9px;padding:9px 11px;font-size:11.5px;box-shadow:var(--shadow-lg);z-index:20;max-width:210px;opacity:0;transition:opacity .12s;line-height:1.45}
+.stationside{max-height:520px;overflow:auto}
+.srow{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.srow:hover{background:var(--surface)}
+.sswatch{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;flex:none;font-variant-numeric:tabular-nums}
+.srow .sn{font-size:13px;font-weight:600}
+.srow .sm{font-size:11px;color:var(--ink-3)}
+.srow .sv{margin-left:auto;text-align:right}
+.srow .sv b{font-size:14px}
+.srow .sv span{font-size:10px;color:var(--ink-3);display:block}
+.polsel{display:inline-flex;border:1px solid var(--line-2);border-radius:10px;overflow:hidden;flex-wrap:wrap}
+.polsel button{border:none;background:#fff;padding:8px 12px;font-size:12.5px;font-weight:600;color:var(--ink-3);border-right:1px solid var(--line-2)}
+.polsel button:last-child{border-right:none}
+.polsel button.on{background:var(--purple-deep);color:#fff}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);font-weight:600;padding:9px 10px;border-bottom:1px solid var(--line-2)}
+.tbl td{padding:10px;border-bottom:1px solid var(--line)}
+.tbl tr:hover td{background:var(--surface)}
+.rank{width:26px;height:26px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff}
+.scenlayout{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+@media(max-width:1000px){.scenlayout{grid-template-columns:1fr}}
+.slider-field{margin-bottom:18px}
+.slider-field .sl-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.slider-field .sl-top label{font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.slider-field .sl-top .sl-val{font-size:12.5px;font-weight:700;color:var(--purple-deep);font-variant-numeric:tabular-nums}
+.slider-field input[type=range]{width:100%;accent-color:var(--purple)}
+.slider-field .sl-hint{font-size:11px;color:var(--ink-3);margin-top:3px}
+.dualmap{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.dualmap{grid-template-columns:1fr}}
+.dm-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.callout{border-left:3px solid var(--purple);background:var(--purple-050);padding:12px 15px;border-radius:0 10px 10px 0;font-size:13px;color:var(--ink-2)}
+.callout.warn{border-color:var(--orange);background:#FDF2E4;color:#8a5212}
+.callout.info{border-color:var(--blue);background:#EFF5FE;color:#0f4fa8}
+.callout .ic{width:17px;height:17px;flex:none;margin-right:4px}
+.insightbox{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.insightbox:last-child{border-bottom:none}
+.insightbox .ib-ic{flex:0 0 32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.insightbox .ib-t{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3)}
+.insightbox .ib-b{font-size:13.5px;color:var(--ink-2);margin-top:2px}
+.alertrow{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+.alertrow:last-child{border-bottom:none}
+.alertrow .al-sev{flex:0 0 8px;align-self:stretch;border-radius:4px}
+.alertrow .al-t{font-size:13.5px;font-weight:600}
+.alertrow .al-d{font-size:12px;color:var(--ink-3);margin-top:2px}
+.chart-wrap{padding:6px 0}
+.legend{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:11.5px;color:var(--ink-3);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.brief-sheet{background:#fff;border:1px solid var(--line);border-radius:14px;padding:32px 38px;box-shadow:var(--shadow-md)}
+.brief-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--purple-deep);padding-bottom:14px;margin-bottom:20px}
+.brief-cols{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+@media(max-width:800px){.brief-cols{grid-template-columns:1fr}}
+.brief-block h4{font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--purple-deep);margin-bottom:8px}
+.brief-block ul{margin:0;padding-left:16px}
+.brief-block li{font-size:13px;margin-bottom:6px;color:var(--ink-2)}
+.qualify{margin-top:20px;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;font-size:11.5px;color:var(--ink-3);line-height:1.5}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:100px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:.3s;z-index:200;display:flex;align-items:center;gap:9px}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast .dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.reg-src{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line)}
+.reg-src:last-child{border-bottom:none}
+.reg-src .rs-ic{flex:0 0 34px;height:34px;border-radius:9px;background:var(--purple-050);color:var(--purple-deep);display:flex;align-items:center;justify-content:center}
+.reg-src .rs-t{font-size:14px;font-weight:600}
+.reg-src .rs-d{font-size:12.5px;color:var(--ink-3);margin-top:2px}
+details.calc summary{cursor:pointer;font-weight:600;font-size:13.5px;color:var(--purple-deep);list-style:none;padding:6px 0}
+details.calc summary::-webkit-details-marker{display:none}
+details.calc summary::before{content:"▸";margin-right:8px;transition:.2s;display:inline-block}
+details.calc[open] summary::before{transform:rotate(90deg)}
+@media print{.sidebar,.topbar,.no-print{display:none!important}.main{padding:0;max-width:none}.brief-sheet{box-shadow:none;border:none;border-radius:0;padding:0}body{font-size:12px}@page{size:A4 portrait;margin:14mm}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"><span class="dot"></span><span id="toast-msg"></span></div>
+<script>
+"use strict";
+/* Urban Environment Twin — Air Quality · v3
+   Data agent aware: tries ./data/<city>.json first (published by the GitHub
+   Actions agent), then falls back to direct Open-Meteo, then to sample data. */
+const AGENT_DATA_DIR = "./data";
+
+const ICONS={
+ compass:'<circle cx="12" cy="12" r="9"/><polygon points="16.2 7.8 13.4 13.4 7.8 16.2 10.6 10.6 16.2 7.8"/>',
+ map:'<polygon points="1 6 8 3 16 6 23 3 23 18 16 21 8 18 1 21"/><line x1="8" y1="3" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="21"/>',
+ activity:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+ beaker:'<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3"/><line x1="7" y1="15" x2="17" y2="15"/>',
+ bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+ file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+ database:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"/><path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/>',
+ wind:'<path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/><path d="M17.7 7.5A2.5 2.5 0 1 1 19.5 12H2"/>',
+ target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+ layers:'<polygon points="12 2 22 8.5 12 15 2 8.5"/><polyline points="2 15.5 12 22 22 15.5"/>',
+ alert:'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+ info:'<circle cx="12" cy="12" r="9"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+ check:'<polyline points="20 6 9 17 4 12"/>',
+ trend:'<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+ down:'<polyline points="2 7 8.5 13.5 13.5 8.5 22 17"/><polyline points="16 17 22 17 22 11"/>',
+ rocket:'<path d="M4.5 16.5c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.7-.8.7-2 0-2.8a2 2 0 0 0-3 0z"/><path d="M12 15l-3-3a22 22 0 0 1 8-10c1.7 0 3 1.3 3 3a22 22 0 0 1-10 8z"/>',
+ refresh:'<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0 0 20.5 15"/>',
+ print:'<polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+ download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+ school:'<path d="M3 10l9-5 9 5-9 5-9-5z"/><path d="M7 12.5V17c0 1 2.2 2.5 5 2.5s5-1.5 5-2.5v-4.5"/>',
+ shield:'<path d="M12 2 4 5v6c0 5 3.4 8.5 8 10 4.6-1.5 8-5 8-10V5z"/>',
+ arrowr:'<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>',
+ car:'<path d="M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H8v1a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><circle cx="7.5" cy="16" r="1"/><circle cx="16.5" cy="16" r="1"/>',
+ factory:'<path d="M3 21V9l6 4V9l6 4V5l6 3v13z"/><line x1="3" y1="21" x2="21" y2="21"/>',
+ leaf:'<path d="M11 3C6 4 3 8 3 13c0 4 3 7 8 7 6 0 10-6 10-14-4 2-7 1-10-3z"/><path d="M8 16c3-4 6-6 9-7"/>',
+ globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/>',
+ star:'<polygon points="12 2 15 9 22 9.5 17 14 18.5 21 12 17.5 5.5 21 7 14 2 9.5 9 9"/>'
+};
+function icon(n,cls){return '<svg class="ic '+(cls||'')+'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[n]||'')+'</svg>';}
+const LOGO='<svg class="glyph" viewBox="0 0 40 40" fill="none" role="img" aria-label="Urban Environment Twin logo">'
+ +'<defs><linearGradient id="lgLeaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#A100FF"/><stop offset="1" stop-color="#5B1AA8"/></linearGradient></defs>'
+ +'<circle cx="20" cy="20" r="18.5" fill="#F5EEFB" stroke="#ECDDF9" stroke-width="1"/>'
+ +'<g class="logo-air" stroke="#A100FF" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.85"><path d="M8 15 a12 12 0 0 1 24 0"/><path d="M8 25 a12 12 0 0 0 24 0"/></g>'
+ +'<path d="M20 9 C13 12 11 18 13.5 25 C20 24 26 19 25 9.5 C23 12 21 11.5 20 9 Z" fill="url(#lgLeaf)"/>'
+ +'<path d="M15 23 C17.5 19 20 17 23 15.5" stroke="#F5EEFB" stroke-width="1.4" stroke-linecap="round" fill="none"/>'
+ +'<circle cx="28.5" cy="12" r="2.3" fill="#00B3B8"/></svg>';
+
+/* ============================ ANIMATED HERO ============================ */
+function heroScene(){
+  var gB=196, road=264;
+  return '<div class="scene-block"><div class="scene-wrap">'
+    +'<div class="scene-eyebrow">Urban Environment Twin · Air Quality</div>'
+    +'<svg viewBox="0 0 900 300" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Animated purple and white line drawing: trees, buildings, cars and air moving across">'
+      +'<g transform="translate(802,52)"><circle class="ln accent" style="--len:150;--d:.1s" r="19"/>'
+        +Array.from({length:8},(_,i)=>{const a=i*Math.PI/4;const x1=Math.cos(a)*26,y1=Math.sin(a)*26,x2=Math.cos(a)*35,y2=Math.sin(a)*35;return '<line class="ln accent sun-ray" style="--len:12;--d:'+(0.5+i*0.05)+'s" x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'"/>';}).join('')
+      +'</g>'
+      +'<g class="bird"><path class="ln thin" style="--len:26;--d:1.4s" d="M0,54 q7,-7 14,0"/><path class="ln thin wingp" style="--len:26;--d:1.4s" d="M14,54 q7,-7 14,0"/></g>'
+      +'<path class="wind"    d="M-10,74 C 120,56 260,96 400,74 C 560,48 700,96 910,70" />'
+      +'<path class="wind w2" d="M-10,106 C 140,88 300,128 470,104 C 640,82 790,122 910,100" />'
+      +'<path class="wind w3" d="M-10,138 C 160,122 320,158 500,136 C 680,116 820,148 910,130" />'
+      +Array.from({length:8},(_,i)=>'<circle class="pit" r="'+(1.5+ (i%3)*0.7)+'" cx="'+(30+i*26)+'" cy="'+(78+ (i%4)*18)+'" style="animation-delay:'+(-i*0.7)+'s"/>').join('')
+      +'<line class="ln thin" style="--len:900;--d:.05s" x1="0" y1="'+gB+'" x2="900" y2="'+gB+'"/>'
+      +treeSVG(64,gB,54,'')+treeSVG(114,gB,40,'s2')+treeSVG(26,gB,34,'s3')
+      +houseSVG(212,gB)+houseSVG(302,gB,true)
+      +factorySVG(560,gB)
+      +treeSVG(720,gB,46,'s2')+treeSVG(760,gB,32,'s3')+treeSVG(690,gB,30,'')
+      +'<line class="ln thin" style="--len:900;--d:.05s" x1="0" y1="'+road+'" x2="900" y2="'+road+'"/>'
+      +'<line class="ln thin" style="--len:900;--d:.05s" x1="0" y1="'+(road+11)+'" x2="900" y2="'+(road+11)+'" opacity=".45"/>'
+      +Array.from({length:9},(_,i)=>'<line class="ln thin" style="--len:14;--d:.9s" x1="'+(30+i*100)+'" y1="'+(road+5.5)+'" x2="'+(66+i*100)+'" y2="'+(road+5.5)+'" opacity=".4"/>').join('')
+      +'<g class="car-g">'+carSVG(false,road-14)+'</g>'
+      +'<g class="car-g car2">'+carSVG(true,road-14)+'</g>'
+    +'</svg></div>'
+  +'<div class="scene-heading"><span class="sh-eyebrow">Select a city</span>Choose your city</div></div>';
+}
+function treeSVG(x,base,h,cls){ const trunk=h*0.42; return '<g class="tree-sway '+cls+'" transform="translate('+x+',0)"><line class="ln" style="--len:'+trunk+';--d:.6s" x1="0" y1="'+base+'" x2="0" y2="'+(base-trunk)+'"/><circle class="ln accent" style="--len:'+(2*Math.PI*h*0.5).toFixed(0)+';--d:.8s" cx="0" cy="'+(base-trunk-h*0.34)+'" r="'+(h*0.5)+'"/><path class="ln thin" style="--len:'+h+';--d:1s" d="M0,'+(base-trunk)+' l-'+(h*0.22)+',-'+(h*0.22)+' M0,'+(base-trunk-h*0.18)+' l'+(h*0.22)+',-'+(h*0.2)+'"/></g>'; }
+function houseSVG(x,base,accent){ const w=64,wall=46,roof=26,cls=accent?'accent':''; return '<g transform="translate('+x+',0)"><rect class="ln '+cls+'" style="--len:'+(2*(w+wall))+';--d:.7s" x="0" y="'+(base-wall)+'" width="'+w+'" height="'+wall+'"/><path class="ln '+cls+'" style="--len:'+(w*1.6)+';--d:.9s" d="M-6,'+(base-wall)+' L'+(w/2)+','+(base-wall-roof)+' L'+(w+6)+','+(base-wall)+'"/><rect class="ln thin" style="--len:'+(4*13)+';--d:1.1s" x="'+(w*0.18)+'" y="'+(base-wall*0.62)+'" width="13" height="13"/><rect class="ln thin" style="--len:'+(2*(16+26))+';--d:1.2s" x="'+(w*0.62)+'" y="'+(base-26)+'" width="16" height="26"/></g>'; }
+function factorySVG(x,base){ const w=120,wall=64; return '<g transform="translate('+x+',0)"><path class="ln" style="--len:'+(w*2.4)+';--d:.75s" d="M0,'+(base-wall*0.62)+' L0,'+base+' L'+w+','+base+' L'+w+','+(base-wall*0.5)+' L'+(w*0.72)+','+(base-wall*0.5)+' L'+(w*0.72)+','+(base-wall*0.78)+' L'+(w*0.44)+','+(base-wall*0.78)+' L'+(w*0.44)+','+(base-wall*0.62)+' Z"/><rect class="ln accent" style="--len:'+(2*(14+56))+';--d:.9s" x="'+(w*0.12)+'" y="'+(base-wall)+'" width="14" height="56"/><g transform="translate('+(w*0.12+7)+','+(base-wall)+')"><path class="smoke" d="M0,0 q-6,-8 0,-16 q6,-8 0,-16"/><path class="smoke k2" d="M0,0 q6,-8 0,-16 q-6,-8 0,-16"/><path class="smoke k3" d="M0,0 q-5,-8 0,-16 q5,-8 0,-16"/></g><g class="ln thin" style="--len:80;--d:1.2s">'+[0,1,2].map(i=>'<rect x="'+(w*0.5+i*18)+'" y="'+(base-24)+'" width="12" height="16" fill="none" stroke="#6B6480" stroke-width="1.1"/>').join('')+'</g></g>'; }
+function carSVG(alt,y){ const col=alt?'accent':''; return '<g transform="translate(60,'+(y==null?236:y)+')"><path class="ln '+col+'" style="--len:150;--d:1.3s" d="M0,0 h56 l10,-14 h20 l10,14 h6 a4,4 0 0 1 4,4 v6 h-116 v-6 a4,4 0 0 1 4,-4 z"/><path class="ln thin" style="--len:40;--d:1.5s" d="M64,-14 h16 l8,14 h-24 z"/><circle class="ln wheel" style="--len:50;--d:1.4s" cx="26" cy="10" r="8"/><circle class="ln wheel" style="--len:50;--d:1.4s" cx="86" cy="10" r="8"/></g>'; }
+
+/* ============================ POLLUTANTS + AQI ============================ */
+const POLLUTANTS={
+  pm25:{id:"pm25",om:"pm2_5",label:"PM2.5",unit:"µg/m³",name:"Fine particulate matter"},
+  pm10:{id:"pm10",om:"pm10",label:"PM10",unit:"µg/m³",name:"Coarse particulate matter"},
+  no2:{id:"no2",om:"nitrogen_dioxide",label:"NO₂",unit:"µg/m³",name:"Nitrogen dioxide"},
+  o3:{id:"o3",om:"ozone",label:"O₃",unit:"µg/m³",name:"Ground-level ozone"},
+  so2:{id:"so2",om:"sulphur_dioxide",label:"SO₂",unit:"µg/m³",name:"Sulphur dioxide"},
+  co:{id:"co",om:"carbon_monoxide",label:"CO",unit:"µg/m³",name:"Carbon monoxide"}
+};
+const RAMP=['#0F9D6B','#4FB477','#C9A227','#E8830C','#E5484D','#8E44AD'];
+const RAMP_CLS=['tag-good','tag-good','tag-mod','tag-usg','tag-unh','tag-vunh'];
+const NAQI_BP={
+ pm25:[[0,30,0,50],[31,60,51,100],[61,90,101,200],[91,120,201,300],[121,250,301,400],[251,500,401,500]],
+ pm10:[[0,50,0,50],[51,100,51,100],[101,250,101,200],[251,350,201,300],[351,430,301,400],[431,600,401,500]],
+ no2:[[0,40,0,50],[41,80,51,100],[81,180,101,200],[181,280,201,300],[281,400,301,400],[401,500,401,500]],
+ o3:[[0,50,0,50],[51,100,51,100],[101,168,101,200],[169,208,201,300],[209,748,301,400],[749,1000,401,500]],
+ so2:[[0,40,0,50],[41,80,51,100],[81,380,101,200],[381,800,201,300],[801,1600,301,400],[1601,2000,401,500]],
+ co:[[0,1000,0,50],[1001,2000,51,100],[2001,10000,101,200],[10001,17000,201,300],[17001,34000,301,400],[34001,50000,401,500]]
+};
+const NAQI_NAMES=["Good","Satisfactory","Moderate","Poor","Very Poor","Severe"];
+const EEA_BP={ pm25:[10,20,25,50,75], pm10:[20,40,50,100,150], no2:[40,90,120,230,340], o3:[50,100,130,240,380], so2:[100,200,350,500,750], co:[4000,8000,12000,16000,20000] };
+const EEA_NAMES=["Good","Fair","Moderate","Poor","Very poor","Extremely poor"];
+function naqiSub(pol,c){ const bp=NAQI_BP[pol]; if(c==null)return null; for(const b of bp){const[cl,ch,il,ih]=b; if(c>=cl&&c<=ch)return Math.round(((ih-il)/(ch-cl))*(c-cl)+il);} const last=bp[bp.length-1]; return c>last[1]?500:Math.round(last[2]); }
+function bandForConc(pol,c,standard){
+  if(c==null)return{idx:0,name:standard==='india'?NAQI_NAMES[0]:EEA_NAMES[0],hex:RAMP[0],cls:RAMP_CLS[0]};
+  if(standard!=='india'){ const t=EEA_BP[pol]; let idx=t.findIndex(x=>c<=x); if(idx<0)idx=5; return{idx,name:EEA_NAMES[idx],hex:RAMP[idx],cls:RAMP_CLS[idx]}; }
+  const aqi=naqiSub(pol,c); let idx=aqi<=50?0:aqi<=100?1:aqi<=200?2:aqi<=300?3:aqi<=400?4:5; return{idx,name:NAQI_NAMES[idx],hex:RAMP[idx],cls:RAMP_CLS[idx]};
+}
+function standardName(std){ if(std==='india')return"India NAQI"; if(std==='europe')return"European AQI (EEA)"; return"International (EEA bands)"; }
+function aqiNumber(pol,c,std,liveEuro){ if(std!=='india') return liveEuro!=null?Math.round(liveEuro):null; return naqiSub(pol,c); }
+
+/* ============================ CITY MODELS ============================ */
+function C(id,name,area,lat,lon,base,split){return{id,name,area,lat,lon,base,split};}
+function R(name,type,lat,lon){return{name,type,lat,lon};}
+const CITIES={
+ bengaluru:{id:"bengaluru",name:"Bengaluru",country:"India",flag:"🇮🇳",standard:"india",center:{lat:12.97,lon:77.59},
+   stations:[C("btm","BTM Layout","South, residential/commercial",12.9135,77.6101,74,[.42,.06,.20,.32]),C("silk","Silk Board","Major traffic junction",12.9177,77.6233,92,[.58,.05,.15,.22]),C("hebbal","Hebbal","North, ORR corridor",13.0358,77.5970,68,[.50,.08,.14,.28]),C("peenya","Peenya","Industrial estate",13.0290,77.5190,98,[.30,.40,.10,.20]),C("crs","City Railway Stn","Central, dense traffic",12.9756,77.5713,81,[.52,.10,.14,.24]),C("jaya","Jayanagar","South, leafy residential",12.9200,77.5838,52,[.34,.04,.14,.48]),C("bapuji","Bapuji Nagar","West, mixed",12.9516,77.5399,71,[.44,.14,.16,.26]),C("hombe","Hombegowda Nagar","Central-south",12.9382,77.5960,64,[.44,.06,.16,.34]),C("sgh","Sanegurava Halli","West-central",12.9917,77.5514,66,[.42,.10,.18,.30]),C("bell","Kadabesanahalli","East, IT + construction",12.9352,77.6785,79,[.40,.06,.30,.24]),C("white","Whitefield","East, IT + construction",12.9698,77.7500,72,[.38,.08,.30,.24]),C("nimhans","Hosur Road","South-central, traffic",12.9430,77.5960,69,[.50,.05,.15,.30])],
+   receptors:[R("NIMHANS Hospital","hospital",12.9430,77.5965),R("St John's Medical College","hospital",12.9290,77.6205),R("NPS Indiranagar","school",12.9719,77.6412),R("Jayanagar Govt School","school",12.9250,77.5830)]},
+ helsinki:{id:"helsinki",name:"Helsinki",country:"Finland",flag:"🇫🇮",standard:"europe",center:{lat:60.17,lon:24.94},
+   stations:[C("kallio","Kallio","Central residential",60.184,24.949,9,[.46,.05,.10,.39]),C("kamppi","Kamppi","City centre",60.168,24.931,11,[.52,.05,.10,.33]),C("manner","Mannerheimintie","Main traffic artery",60.175,24.930,14,[.62,.04,.10,.24]),C("toolo","Töölö","Residential",60.180,24.915,8,[.40,.04,.10,.46]),C("pasila","Pasila","Rail + business hub",60.199,24.933,10,[.50,.08,.12,.30]),C("vallila","Vallila","Mixed inner",60.194,24.949,9,[.46,.10,.10,.34]),C("hertto","Herttoniemi","East, light industry",60.194,25.030,9,[.38,.22,.10,.30]),C("kumpula","Kumpula","Green/background",60.203,24.961,6,[.28,.04,.08,.60]),C("satama","Länsisatama","West harbour/port",60.157,24.921,12,[.34,.30,.12,.24]),C("itakes","Itäkeskus","East centre",60.210,25.077,10,[.48,.08,.12,.32])],
+   receptors:[R("Töölö Hospital","hospital",60.181,24.918),R("Meilahti Hospital","hospital",60.190,24.905),R("Ressu School","school",60.166,24.928),R("Kallio School","school",60.187,24.951)]},
+ milan:{id:"milan",name:"Milan",country:"Italy",flag:"🇮🇹",standard:"europe",center:{lat:45.464,lon:9.190},
+   stations:[C("duomo","Duomo","Historic centre",45.464,9.190,38,[.48,.06,.12,.34]),C("marghera","Corso Sempione","Traffic corridor",45.482,9.155,47,[.60,.06,.12,.22]),C("cittastudi","Città Studi","University/residential",45.478,9.230,35,[.44,.08,.12,.36]),C("portanuova","Porta Nuova","Business district",45.483,9.192,36,[.48,.06,.14,.32]),C("lambrate","Lambrate","East, mixed",45.485,9.238,40,[.44,.16,.12,.28]),C("bicocca","Bicocca","North, ex-industrial",45.520,9.212,42,[.40,.22,.12,.26]),C("navigli","Navigli","South, nightlife",45.448,9.175,34,[.46,.05,.12,.37]),C("linate","Forlanini","East, airport edge",45.445,9.270,44,[.50,.12,.14,.24]),C("sansiro","San Siro","West, residential",45.478,9.124,33,[.42,.06,.14,.38]),C("rho","Rho-Pero","NW, industrial/fair",45.520,9.040,49,[.30,.40,.10,.20])],
+   receptors:[R("Policlinico di Milano","hospital",45.459,9.196),R("Niguarda Hospital","hospital",45.510,9.190),R("Liceo Parini","school",45.472,9.192),R("Bocconi University","school",45.443,9.190)]},
+ warsaw:{id:"warsaw",name:"Warsaw",country:"Poland",flag:"🇵🇱",standard:"europe",center:{lat:52.23,lon:21.01},
+   stations:[C("centrum","Śródmieście","City centre",52.229,21.012,28,[.50,.08,.12,.30]),C("praga","Praga","East bank, mixed",52.252,21.036,32,[.44,.18,.12,.26]),C("mokotow","Mokotów","South residential",52.190,21.030,24,[.42,.06,.12,.40]),C("ursynow","Ursynów","South, housing estates",52.150,21.045,22,[.40,.05,.12,.43]),C("wola","Wola","West, traffic + build",52.235,20.985,34,[.52,.10,.16,.22]),C("zoliborz","Żoliborz","North residential",52.270,20.985,23,[.40,.06,.12,.42]),C("ochota","Ochota","Inner west",52.215,20.985,27,[.48,.08,.12,.32]),C("bielany","Bielany","North, green edge",52.290,20.940,20,[.32,.06,.10,.52]),C("targowek","Targówek","NE, industrial",52.290,21.045,33,[.36,.34,.10,.20])],
+   receptors:[R("Wojskowy Hospital","hospital",52.239,20.968),R("Bródno Hospital","hospital",52.300,21.030),R("Liceum Batorego","school",52.212,21.030),R("SGH School","school",52.209,21.007)]},
+ london:{id:"london",name:"London",country:"United Kingdom",flag:"🇬🇧",standard:"europe",center:{lat:51.507,lon:-0.127},
+   stations:[C("westm","Westminster","Central government",51.501,-0.141,15,[.52,.05,.12,.31]),C("maryle","Marylebone Rd","Notorious traffic road",51.522,-0.155,22,[.66,.04,.10,.20]),C("city","City of London","Financial district",51.515,-0.093,16,[.50,.06,.14,.30]),C("camden","Camden","Inner north",51.539,-0.143,14,[.48,.06,.12,.34]),C("southwark","Southwark","Inner south",51.503,-0.089,15,[.48,.08,.14,.30]),C("hackney","Hackney","East, mixed",51.545,-0.055,13,[.44,.10,.12,.34]),C("kensington","Kensington","West, affluent",51.499,-0.193,12,[.42,.04,.12,.42]),C("greenwich","Greenwich","SE, river",51.483,0.005,14,[.42,.14,.12,.32]),C("stratford","Stratford","East, regeneration",51.541,-0.003,16,[.44,.10,.18,.28]),C("ealing","Ealing","West suburb",51.513,-0.305,12,[.40,.06,.12,.42])],
+   receptors:[R("St Thomas' Hospital","hospital",51.498,-0.118),R("UCL Hospital","hospital",51.524,-0.135),R("City of London School","school",51.511,-0.099),R("Westminster School","school",51.499,-0.128)]},
+ paris:{id:"paris",name:"Paris",country:"France",flag:"🇫🇷",standard:"europe",center:{lat:48.856,lon:2.352},
+   stations:[C("chatelet","Châtelet","Central",48.860,2.347,20,[.52,.05,.12,.31]),C("periph","Bd Périphérique","Ring road, heavy traffic",48.878,2.323,26,[.66,.05,.10,.19]),C("bastille","Bastille","East centre",48.853,2.369,19,[.50,.06,.12,.32]),C("montpar","Montparnasse","South centre",48.842,2.322,18,[.48,.06,.12,.34]),C("defense","La Défense","West business",48.892,2.238,17,[.46,.08,.16,.30]),C("belleville","Belleville","NE, dense",48.872,2.383,20,[.50,.08,.12,.30]),C("bibli","13e Bibliothèque","SE, modern",48.833,2.376,18,[.46,.08,.14,.32]),C("vincennes","Bois de Vincennes","East, park edge",48.828,2.434,12,[.30,.05,.08,.57]),C("stdenis","Saint-Denis edge","North, industrial",48.936,2.357,24,[.38,.30,.12,.20])],
+   receptors:[R("Pitié-Salpêtrière","hospital",48.839,2.363),R("Hôpital Saint-Louis","hospital",48.873,2.368),R("Lycée Henri-IV","school",48.847,2.347),R("Sorbonne","school",48.848,2.343)]},
+ berlin:{id:"berlin",name:"Berlin",country:"Germany",flag:"🇩🇪",standard:"europe",center:{lat:52.520,lon:13.405},
+   stations:[C("mitte","Mitte","Central",52.520,13.405,14,[.50,.06,.12,.32]),C("neukolln","Neukölln","South inner, dense",52.481,13.435,15,[.50,.08,.12,.30]),C("charlott","Charlottenburg","West",52.505,13.305,12,[.44,.06,.12,.38]),C("frankallee","Frankfurter Allee","East, traffic axis",52.515,13.475,17,[.60,.06,.12,.22]),C("wedding","Wedding","North inner",52.550,13.365,14,[.48,.10,.12,.30]),C("kreuzberg","Kreuzberg","Inner south",52.499,13.403,15,[.50,.06,.12,.32]),C("tempelhof","Tempelhof","South, open field",52.470,13.400,11,[.36,.06,.10,.48]),C("marzahn","Marzahn","East, estates",52.545,13.575,13,[.38,.14,.12,.36]),C("spandau","Spandau","West, industrial",52.535,13.200,14,[.36,.28,.12,.24])],
+   receptors:[R("Charité Hospital","hospital",52.526,13.376),R("Vivantes Neukölln","hospital",52.475,13.440),R("Französisches Gymnasium","school",52.531,13.393),R("Humboldt University","school",52.518,13.393)]},
+ delhi:{id:"delhi",name:"Delhi",country:"India",flag:"🇮🇳",standard:"india",center:{lat:28.61,lon:77.21},
+   stations:[C("cp","Connaught Place","Central hub",28.6330,77.2190,118,[.54,.08,.14,.24]),C("anand","Anand Vihar","East, hotspot",28.6469,77.3152,152,[.50,.24,.12,.14]),C("dwarka","Dwarka","SW, planned",28.5921,77.0460,104,[.46,.10,.20,.24]),C("rohini","Rohini","NW residential",28.7439,77.0729,112,[.44,.10,.18,.28]),C("rkpuram","RK Puram","South govt",28.5637,77.1770,108,[.48,.08,.16,.28]),C("pbagh","Punjabi Bagh","West, traffic",28.6680,77.1310,124,[.56,.08,.14,.22]),C("okhla","Okhla","South, industrial",28.5300,77.2740,120,[.36,.34,.12,.18])],
+   receptors:[R("AIIMS Hospital","hospital",28.5672,77.2100),R("Safdarjung Hospital","hospital",28.5687,77.2060),R("DPS RK Puram","school",28.5560,77.1820)]},
+ mumbai:{id:"mumbai",name:"Mumbai",country:"India",flag:"🇮🇳",standard:"india",center:{lat:19.076,lon:72.877},
+   stations:[C("bkc","Bandra-Kurla","Business district",19.0600,72.8680,66,[.52,.10,.14,.24]),C("colaba","Colaba","South tip, coastal",18.9067,72.8147,48,[.40,.06,.12,.42]),C("andheri","Andheri","West, traffic",19.1197,72.8468,72,[.56,.08,.14,.22]),C("worli","Worli","Central, sea-facing",19.0176,72.8170,58,[.48,.08,.14,.30]),C("powai","Powai","NE, lake/IT",19.1197,72.9050,60,[.46,.10,.16,.28]),C("chembur","Chembur","East, refinery belt",19.0620,72.8990,78,[.34,.38,.10,.18])],
+   receptors:[R("KEM Hospital","hospital",19.0009,72.8420),R("Tata Memorial","hospital",19.0048,72.8430),R("Cathedral School","school",18.9300,72.8320)]},
+ beijing:{id:"beijing",name:"Beijing",country:"China",flag:"🇨🇳",standard:"europe",center:{lat:39.904,lon:116.407},
+   stations:[C("dongcheng","Dongcheng","Historic core",39.9280,116.4160,62,[.50,.10,.14,.26]),C("chaoyang","Chaoyang","CBD/embassies",39.9210,116.4430,66,[.54,.08,.14,.24]),C("haidian","Haidian","NW, tech/universities",39.9590,116.2980,58,[.48,.10,.14,.28]),C("fengtai","Fengtai","SW, mixed",39.8580,116.2870,72,[.44,.20,.14,.22]),C("tiananmen","Tiananmen","Central",39.9050,116.3910,60,[.50,.08,.14,.28]),C("shunyi","Shunyi","NE, airport/suburb",40.1300,116.6550,54,[.42,.16,.14,.28])],
+   receptors:[R("Peking Union Hospital","hospital",39.9120,116.4170),R("Beijing Children's Hospital","hospital",39.9010,116.3540),R("Tsinghua University","school",40.0000,116.3260)]},
+ shanghai:{id:"shanghai",name:"Shanghai",country:"China",flag:"🇨🇳",standard:"europe",center:{lat:31.230,lon:121.474},
+   stations:[C("puxi","People's Square","Central",31.2300,121.4750,44,[.52,.08,.14,.26]),C("pudong","Pudong Lujiazui","Finance district",31.2210,121.5440,46,[.54,.08,.14,.24]),C("jingan","Jing'an","Inner NW",31.2290,121.4450,42,[.50,.08,.14,.28]),C("xuhui","Xuhui","SW residential",31.1880,121.4370,40,[.46,.08,.14,.32]),C("hongkou","Hongkou","North inner",31.2650,121.4900,45,[.48,.12,.14,.26]),C("baoshan","Baoshan","North, steel/industrial",31.4050,121.4890,54,[.34,.38,.10,.18])],
+   receptors:[R("Huashan Hospital","hospital",31.2160,121.4390),R("Ruijin Hospital","hospital",31.2110,121.4650),R("Fudan University","school",31.2980,121.5030)]},
+ shenzhen:{id:"shenzhen",name:"Shenzhen",country:"China",flag:"🇨🇳",standard:"europe",center:{lat:22.543,lon:114.058},
+   stations:[C("futian","Futian","CBD",22.5410,114.0550,32,[.52,.10,.16,.22]),C("luohu","Luohu","Old centre/border",22.5480,114.1310,34,[.52,.10,.14,.24]),C("nanshan","Nanshan","West, tech",22.5330,113.9300,30,[.48,.10,.16,.26]),C("baoan","Bao'an","NW, manufacturing",22.5550,113.8830,40,[.38,.30,.14,.18]),C("longgang","Longgang","NE, industrial",22.7200,114.2460,38,[.38,.28,.14,.20]),C("yantian","Yantian","East, port",22.5570,114.2370,34,[.40,.22,.14,.24])],
+   receptors:[R("Shenzhen People's Hospital","hospital",22.5560,114.1050),R("Children's Hospital","hospital",22.5480,114.0640),R("Shenzhen University","school",22.5330,113.9310)]},
+ guangzhou:{id:"guangzhou",name:"Guangzhou",country:"China",flag:"🇨🇳",standard:"europe",center:{lat:23.129,lon:113.264},
+   stations:[C("tianhe","Tianhe","CBD",23.1250,113.3610,42,[.52,.10,.14,.24]),C("yuexiu","Yuexiu","Old centre",23.1290,113.2670,44,[.52,.08,.14,.26]),C("haizhu","Haizhu","Island, mixed",23.0830,113.3170,43,[.48,.12,.14,.26]),C("liwan","Liwan","West, traditional",23.1250,113.2440,45,[.50,.12,.14,.24]),C("baiyun","Baiyun","North, airport",23.1620,113.2730,40,[.44,.16,.14,.26]),C("huangpu","Huangpu","East, petrochem/port",23.1060,113.4590,52,[.34,.38,.10,.18])],
+   receptors:[R("Sun Yat-sen Hospital","hospital",23.1290,113.2880),R("Women & Children's Hospital","hospital",23.1250,113.2670),R("Sun Yat-sen University","school",23.0970,113.2980)]},
+ hongkong:{id:"hongkong",name:"Hong Kong",country:"Hong Kong SAR",flag:"🇭🇰",standard:"europe",center:{lat:22.319,lon:114.169},
+   stations:[C("central","Central","Financial core",22.2820,114.1580,32,[.56,.08,.14,.22]),C("cwb","Causeway Bay","Dense retail",22.2800,114.1850,36,[.60,.06,.12,.22]),C("mongkok","Mong Kok","Kowloon, dense",22.3190,114.1690,38,[.60,.06,.12,.22]),C("kwuntong","Kwun Tong","East Kowloon, industrial",22.3100,114.2260,36,[.42,.28,.12,.18]),C("tsuenwan","Tsuen Wan","NW New Territories",22.3710,114.1140,30,[.44,.18,.14,.24]),C("shatin","Sha Tin","North, residential",22.3820,114.1880,26,[.40,.10,.14,.36])],
+   receptors:[R("Queen Mary Hospital","hospital",22.2700,114.1310),R("Prince of Wales Hospital","hospital",22.3790,114.2010),R("University of Hong Kong","school",22.2830,114.1370)]},
+ seoul:{id:"seoul",name:"Seoul",country:"South Korea",flag:"🇰🇷",standard:"europe",center:{lat:37.566,lon:126.978},
+   stations:[C("junggu","Jung-gu","City centre",37.5640,126.9980,34,[.52,.10,.14,.24]),C("gangnam","Gangnam","Business/affluent",37.5170,127.0470,36,[.56,.08,.14,.22]),C("ydp","Yeongdeungpo","SW, industrial",37.5260,126.8960,42,[.40,.28,.12,.20]),C("jongno","Jongno","Historic centre",37.5720,126.9790,33,[.50,.08,.14,.28]),C("mapo","Mapo","NW, mixed",37.5660,126.9010,34,[.48,.10,.14,.28]),C("seongdong","Seongdong","East, riverside",37.5630,127.0370,35,[.48,.12,.14,.26])],
+   receptors:[R("Seoul National Univ Hospital","hospital",37.5800,126.9990),R("Severance Hospital","hospital",37.5620,126.9410),R("Seoul National University","school",37.4590,126.9520)]},
+ tokyo:{id:"tokyo",name:"Tokyo",country:"Japan",flag:"🇯🇵",standard:"europe",center:{lat:35.676,lon:139.650},
+   stations:[C("shinjuku","Shinjuku","Business/transport hub",35.6900,139.7000,16,[.54,.08,.14,.24]),C("chiyoda","Chiyoda","Government/finance",35.6940,139.7530,15,[.52,.08,.14,.26]),C("shibuya","Shibuya","Retail/dense",35.6580,139.7020,16,[.56,.06,.14,.24]),C("minato","Minato","Corporate/embassies",35.6580,139.7510,15,[.52,.08,.14,.26]),C("taito","Taito","Old town, traffic",35.7130,139.7800,17,[.54,.10,.12,.24]),C("koto","Koto","East, bay/industrial",35.6720,139.8170,18,[.42,.24,.14,.20])],
+   receptors:[R("Tokyo Univ Hospital","hospital",35.7130,139.7620),R("St Luke's Hospital","hospital",35.6690,139.7770),R("University of Tokyo","school",35.7130,139.7620)]},
+ bangkok:{id:"bangkok",name:"Bangkok",country:"Thailand",flag:"🇹🇭",standard:"europe",center:{lat:13.756,lon:100.501},
+   stations:[C("sathorn","Sathorn","Business district",13.7220,100.5300,44,[.56,.08,.14,.22]),C("sukhumvit","Sukhumvit","Dense mixed corridor",13.7380,100.5600,46,[.58,.06,.14,.22]),C("chatuchak","Chatuchak","North, market/transit",13.8000,100.5530,42,[.50,.10,.14,.26]),C("bangrak","Bang Rak","Riverside centre",13.7290,100.5240,41,[.52,.08,.14,.26]),C("dindaeng","Din Daeng","Expressway junction",13.7690,100.5510,50,[.62,.06,.12,.20]),C("thonburi","Thon Buri","West bank",13.7220,100.4850,40,[.46,.10,.14,.30])],
+   receptors:[R("Siriraj Hospital","hospital",13.7590,100.4850),R("Chulalongkorn Hospital","hospital",13.7320,100.5360),R("Chulalongkorn University","school",13.7380,100.5320)]},
+ jakarta:{id:"jakarta",name:"Jakarta",country:"Indonesia",flag:"🇮🇩",standard:"europe",center:{lat:-6.208,lon:106.846},
+   stations:[C("central","Menteng","Central, govt",-6.1960,106.8320,50,[.52,.10,.14,.24]),C("kelapa","Kelapa Gading","NE, commercial",-6.1610,106.9070,52,[.50,.12,.14,.24]),C("kebayoran","Kebayoran","South, affluent",-6.2440,106.7990,46,[.50,.08,.14,.28]),C("priok","Tanjung Priok","North, port",-6.1050,106.8810,58,[.40,.32,.12,.16]),C("cakung","Cakung","East, industrial",-6.1830,106.9500,60,[.36,.36,.12,.16]),C("sudirman","Sudirman","CBD corridor",-6.2250,106.8090,54,[.58,.08,.12,.22])],
+   receptors:[R("Cipto Mangunkusumo Hospital","hospital",-6.1930,106.8460),R("Pertamina Hospital","hospital",-6.2410,106.7990),R("University of Indonesia","school",-6.3600,106.8270)]},
+ singapore:{id:"singapore",name:"Singapore",country:"Singapore",flag:"🇸🇬",standard:"europe",center:{lat:1.352,lon:103.819},
+   stations:[C("central","Central","Downtown core",1.2900,103.8520,20,[.52,.10,.14,.24]),C("jurong","Jurong","West, industrial",1.3330,103.7420,28,[.36,.36,.12,.16]),C("tampines","Tampines","East, residential",1.3530,103.9450,18,[.44,.10,.14,.32]),C("woodlands","Woodlands","North, causeway",1.4360,103.7860,20,[.46,.12,.14,.28]),C("sentosa","Sentosa","South, coastal",1.2490,103.8300,16,[.38,.08,.12,.42]),C("tuas","Tuas","Far west, heavy industry",1.2940,103.6360,30,[.30,.44,.10,.16])],
+   receptors:[R("Singapore General Hospital","hospital",1.2790,103.8350),R("National Univ Hospital","hospital",1.2940,103.7830),R("National Univ of Singapore","school",1.2966,103.7764)]},
+ losangeles:{id:"losangeles",name:"Los Angeles",country:"United States",flag:"🇺🇸",standard:"us",center:{lat:34.052,lon:-118.243},
+   stations:[C("downtown","Downtown LA","Central",34.0520,-118.2440,24,[.54,.10,.14,.22]),C("longbeach","Long Beach","South, ports",33.7700,-118.1890,30,[.40,.34,.12,.14]),C("pasadena","Pasadena","NE, basin trap",34.1480,-118.1440,28,[.50,.10,.14,.26]),C("santamonica","Santa Monica","West, coastal",34.0190,-118.4910,18,[.44,.06,.12,.38]),C("sanfernando","San Fernando","N valley, ozone",34.2820,-118.4370,29,[.52,.10,.14,.24]),C("compton","Compton","S, freight corridor",33.8960,-118.2200,27,[.44,.24,.14,.18])],
+   receptors:[R("Cedars-Sinai","hospital",34.0750,-118.3800),R("UCLA Medical Center","hospital",34.0660,-118.4460),R("USC","school",34.0220,-118.2850)]},
+ dubai:{id:"dubai",name:"Dubai",country:"United Arab Emirates",flag:"🇦🇪",standard:"intl",center:{lat:25.205,lon:55.271},
+   stations:[C("downtown","Downtown","Burj/central",25.1970,55.2740,58,[.44,.14,.18,.24]),C("deira","Deira","Old commercial",25.2710,55.3090,60,[.48,.14,.16,.22]),C("jebelali","Jebel Ali","SW, port/industry",25.0110,55.1330,72,[.30,.40,.14,.16]),C("marina","Dubai Marina","Coastal high-rise",25.0800,55.1400,54,[.46,.10,.18,.26]),C("burdubai","Bur Dubai","Historic core",25.2630,55.2960,58,[.46,.12,.18,.24]),C("alquoz","Al Quoz","Industrial/arts",25.1400,55.2300,66,[.34,.36,.14,.16])],
+   receptors:[R("Rashid Hospital","hospital",25.2350,55.3230),R("Dubai Hospital","hospital",25.2770,55.3200),R("American Univ in Dubai","school",25.0980,55.1620)]},
+ abudhabi:{id:"abudhabi",name:"Abu Dhabi",country:"United Arab Emirates",flag:"🇦🇪",standard:"intl",center:{lat:24.453,lon:54.377},
+   stations:[C("corniche","Corniche","Waterfront centre",24.4750,54.3220,62,[.44,.14,.18,.24]),C("musaffah","Musaffah","Heavy industrial",24.3600,54.5000,86,[.28,.46,.12,.14]),C("khalifa","Khalifa City","Suburban east",24.4200,54.5800,64,[.44,.16,.16,.24]),C("albateen","Al Bateen","Inner residential",24.4560,54.3300,60,[.44,.12,.18,.26]),C("yas","Yas Island","Leisure/coastal",24.4990,54.6070,58,[.42,.14,.18,.26]),C("saadiyat","Saadiyat","Cultural/coastal",24.5430,54.4340,56,[.40,.12,.16,.32])],
+   receptors:[R("Sheikh Khalifa Medical City","hospital",24.4260,54.4460),R("Cleveland Clinic Abu Dhabi","hospital",24.4990,54.4300),R("NYU Abu Dhabi","school",24.5240,54.4340)]},
+ riyadh:{id:"riyadh",name:"Riyadh",country:"Saudi Arabia",flag:"🇸🇦",standard:"intl",center:{lat:24.713,lon:46.675},
+   stations:[C("olaya","Olaya","Business district",24.6900,46.6850,74,[.48,.14,.16,.22]),C("dq","Diplomatic Quarter","West, planned",24.6800,46.6220,66,[.44,.12,.16,.28]),C("industrial","2nd Industrial City","SE, industry",24.6100,46.8300,92,[.30,.44,.12,.14]),C("malaz","Al Malaz","Old central",24.6600,46.7400,78,[.50,.14,.14,.22]),C("kfd","King Fahd District","Central",24.7550,46.6360,72,[.48,.12,.16,.24]),C("exit18","Exit 18","Ring-road edge",24.7900,46.7800,80,[.44,.20,.16,.20])],
+   receptors:[R("King Faisal Hospital","hospital",24.6820,46.6220),R("King Saud Medical City","hospital",24.6470,46.7130),R("King Saud University","school",24.7230,46.6190)]},
+ istanbul:{id:"istanbul",name:"Istanbul",country:"Türkiye",flag:"🇹🇷",standard:"europe",center:{lat:41.008,lon:28.978},
+   stations:[C("beyoglu","Beyoğlu","European centre",41.0360,28.9770,38,[.52,.10,.14,.24]),C("kadikoy","Kadıköy","Asian side, dense",40.9900,29.0270,40,[.52,.10,.14,.24]),C("besiktas","Beşiktaş","Bosphorus, traffic",41.0430,29.0070,42,[.58,.08,.12,.22]),C("fatih","Fatih","Historic peninsula",41.0190,28.9490,39,[.50,.10,.14,.26]),C("uskudar","Üsküdar","Asian waterfront",41.0260,29.0150,37,[.48,.10,.14,.28]),C("esenyurt","Esenyurt","West, industrial sprawl",41.0340,28.6800,46,[.40,.32,.12,.16])],
+   receptors:[R("Cerrahpaşa Hospital","hospital",41.0060,28.9400),R("Acıbadem Hospital","hospital",40.9910,29.0400),R("Istanbul University","school",41.0130,28.9630)]},
+ mexicocity:{id:"mexicocity",name:"Mexico City",country:"Mexico",flag:"🇲🇽",standard:"intl",center:{lat:19.432,lon:-99.133},
+   stations:[C("centro","Centro Histórico","Central",19.4330,-99.1330,40,[.52,.10,.14,.24]),C("iztapalapa","Iztapalapa","SE, dense/traffic",19.3570,-99.0710,48,[.52,.14,.14,.20]),C("coyoacan","Coyoacán","South, leafy",19.3500,-99.1620,34,[.44,.08,.14,.34]),C("polanco","Polanco","Affluent business",19.4330,-99.1930,36,[.52,.08,.14,.26]),C("ecatepec","Ecatepec","NE, industrial",19.6010,-99.0500,52,[.36,.36,.12,.16]),C("xalostoc","Xalostoc","N, industrial hotspot",19.5260,-99.0800,54,[.34,.38,.12,.16])],
+   receptors:[R("Hospital General","hospital",19.4110,-99.1520),R("ABC Hospital","hospital",19.4030,-99.2060),R("UNAM","school",19.3320,-99.1870)]},
+ santiago:{id:"santiago",name:"Santiago",country:"Chile",flag:"🇨🇱",standard:"intl",center:{lat:-33.448,lon:-70.669},
+   stations:[C("centro","Santiago Centro","Central",-33.4430,-70.6540,42,[.52,.10,.14,.24]),C("lascondes","Las Condes","East, affluent",-33.4090,-70.5680,36,[.48,.08,.14,.30]),C("providencia","Providencia","Inner east",-33.4250,-70.6160,40,[.50,.08,.14,.28]),C("maipu","Maipú","SW, sprawl",-33.5170,-70.7580,48,[.46,.18,.14,.22]),C("puentealto","Puente Alto","SE basin, trapped",-33.6110,-70.5760,52,[.44,.16,.14,.26]),C("independencia","Independencia","North central",-33.4180,-70.6640,44,[.48,.14,.14,.24])],
+   receptors:[R("Hospital del Salvador","hospital",-33.4360,-70.6260),R("Clínica Las Condes","hospital",-33.3860,-70.5250),R("Universidad de Chile","school",-33.4570,-70.6620)]},
+ taipei:{id:"taipei",name:"Taipei",country:"Taiwan",flag:"🇹🇼",standard:"europe",center:{lat:25.033,lon:121.565},
+   stations:[C("zhongzheng","Zhongzheng","Government centre",25.0320,121.5190,26,[.52,.10,.14,.24]),C("xinyi","Xinyi","Business/retail",25.0330,121.5650,28,[.56,.08,.14,.22]),C("datong","Datong","Old north",25.0630,121.5130,27,[.50,.10,.14,.26]),C("wanhua","Wanhua","West, traditional",25.0350,121.4990,29,[.52,.12,.14,.22]),C("nangang","Nangang","East, tech/industry",25.0550,121.6070,30,[.44,.24,.14,.18]),C("banqiao","Banqiao","SW, dense suburb",25.0140,121.4670,28,[.50,.14,.14,.22])],
+   receptors:[R("NTU Hospital","hospital",25.0410,121.5190),R("Taipei Veterans Hospital","hospital",25.1200,121.5210),R("National Taiwan University","school",25.0170,121.5400)]}
+};
+
+const MARKET_ORDER=[
+  {key:"NA",  label:"North America (NA)",                     note:"United States · Mexico · Chile (Americas)", ids:["losangeles","mexicocity","santiago"]},
+  {key:"UKI", label:"United Kingdom & Ireland (UKI)",         note:"", ids:["london"]},
+  {key:"EMEA",label:"Europe, Middle East & Africa (EMEA)",    note:"", ids:["helsinki","paris","berlin","milan","warsaw","istanbul","dubai","abudhabi","riyadh"]},
+  {key:"APAC",label:"Asia-Pacific (APAC)",                    note:"", ids:["bengaluru","delhi","mumbai","beijing","shanghai","shenzhen","guangzhou","hongkong","seoul","tokyo","bangkok","jakarta","singapore","taipei"]}
+];
+const FEATURED_ORDER=["bengaluru","singapore","beijing","shanghai","shenzhen","tokyo"];
+
+function cityBBox(city){ const pts=city.stations.concat(city.receptors); let laMin=Infinity,laMax=-Infinity,loMin=Infinity,loMax=-Infinity; pts.forEach(p=>{laMin=Math.min(laMin,p.lat);laMax=Math.max(laMax,p.lat);loMin=Math.min(loMin,p.lon);loMax=Math.max(loMax,p.lon);}); const padLa=(laMax-laMin)*0.12+0.004, padLo=(loMax-loMin)*0.12+0.004; return {latMin:laMin-padLa,latMax:laMax+padLa,lonMin:loMin-padLo,lonMax:loMax+padLo}; }
+function project(lat,lon){ const b=state.city.bbox; const x=(lon-b.lonMin)/(b.lonMax-b.lonMin)*100; const y=(b.latMax-lat)/(b.latMax-b.latMin)*100; return {x,y}; }
+const DIURNAL=[1.18,1.22,1.20,1.12,1.02,1.05,1.20,1.34,1.40,1.20,1.02,0.92,0.86,0.82,0.80,0.84,0.94,1.10,1.28,1.34,1.30,1.28,1.24,1.20];
+function diurnalMul(h){ return DIURNAL[((h%24)+24)%24]; }
+const POL_REL={pm25:1,pm10:1.9,no2:0.55,o3:0.42,so2:0.14,co:7};
+
+const state={ screen:"selector", city:null, cityId:null, dataMode:"sample", dataSource:null, live:null, liveError:null, pollutant:"pm25", hour:new Date().getHours(), showStations:true, showReceptors:true, showSurface:true, weather:{windDir:245,windSpeed:9,temp:24,humidity:55}, scenario:{traffic:0,construction:0,industrial:0,lez:false,ebus:0,windDir:245,windSpeed:9}, selectedStation:null, notes:"" };
+
+/* ============================ DATA LOADERS ============================ */
+function omAqUrl(city){ const lat=city.stations.map(s=>s.lat).join(','), lon=city.stations.map(s=>s.lon).join(','); return "https://air-quality-api.open-meteo.com/v1/air-quality?latitude="+lat+"&longitude="+lon+"&current=pm2_5,pm10,nitrogen_dioxide,sulphur_dioxide,ozone,carbon_monoxide,european_aqi&timezone=auto"; }
+function omHourlyUrl(city){ return "https://air-quality-api.open-meteo.com/v1/air-quality?latitude="+city.center.lat+"&longitude="+city.center.lon+"&hourly=pm2_5,pm10,nitrogen_dioxide,sulphur_dioxide,ozone,carbon_monoxide&past_days=1&forecast_days=1&timezone=auto"; }
+function omWxUrl(city){ return "https://api.open-meteo.com/v1/forecast?latitude="+city.center.lat+"&longitude="+city.center.lon+"&current=wind_speed_10m,wind_direction_10m,temperature_2m,relative_humidity_2m&timezone=auto"; }
+function hourlyNowIdx(times){ const now=Date.now(); let idx=0,best=Infinity; times.forEach((t,i)=>{const d=Math.abs(new Date(t).getTime()-now); if(d<best){best=d;idx=i;}}); return idx; }
+async function tryAgent(city){
+  const res=await fetch(AGENT_DATA_DIR+"/"+city.id+".json",{cache:"no-store"});
+  if(!res.ok) throw new Error("no agent file ("+res.status+")");
+  const d=await res.json();
+  if(!d||!d.ok||!Array.isArray(d.stations)) throw new Error("agent file not ok");
+  city.stations.forEach((st,i)=>{ const a=d.stations[i]; st.live=a?{pm25:a.pm25,pm10:a.pm10,no2:a.no2,o3:a.o3,so2:a.so2,co:a.co,european_aqi:a.european_aqi}:null; });
+  const good=city.stations.filter(s=>s.live&&s.live.pm25!=null).length;
+  if(good<Math.ceil(city.stations.length/2)) throw new Error("agent: insufficient stations");
+  if(d.weather&&d.weather.windDir!=null){ state.weather=d.weather; state.scenario.windDir=d.weather.windDir; state.scenario.windSpeed=d.weather.windSpeed; }
+  let series=null;
+  if(d.hourly&&d.hourly.time){ const t=d.hourly.time; series={time:t,nowIdx:hourlyNowIdx(t),data:{pm25:d.hourly.pm25,pm10:d.hourly.pm10,no2:d.hourly.no2,o3:d.hourly.o3,so2:d.hourly.so2,co:d.hourly.co}}; }
+  state.live={fetchedAt:d.fetchedAt?new Date(d.fetchedAt).getTime():Date.now(),series,agent:true};
+  state.dataMode="live"; state.dataSource=(d.source&&d.source.indexOf('waqi')>=0)?"agent+waqi":"agent"; return true;
+}
+async function tryDirect(city){
+  const [aqR,hrR,wxR]=await Promise.all([fetch(omAqUrl(city)),fetch(omHourlyUrl(city)),fetch(omWxUrl(city))]);
+  if(!aqR.ok) throw new Error("AQ HTTP "+aqR.status);
+  const arr=await aqR.json(); const list=Array.isArray(arr)?arr:[arr];
+  city.stations.forEach((st,i)=>{ const r=list[i]; if(!r||!r.current){st.live=null;return;} const c=r.current; st.live={pm25:c.pm2_5,pm10:c.pm10,no2:c.nitrogen_dioxide,o3:c.ozone,so2:c.sulphur_dioxide,co:c.carbon_monoxide,european_aqi:c.european_aqi}; });
+  const good=city.stations.filter(s=>s.live&&s.live.pm25!=null).length;
+  if(good<Math.ceil(city.stations.length/2)) throw new Error("direct: insufficient stations");
+  let series=null; try{ const hj=await hrR.json(); if(hj.hourly&&hj.hourly.time){ const h=hj.hourly; series={time:h.time,nowIdx:hourlyNowIdx(h.time),data:{pm25:h.pm2_5,pm10:h.pm10,no2:h.nitrogen_dioxide,o3:h.ozone,so2:h.sulphur_dioxide,co:h.carbon_monoxide}}; } }catch(e){}
+  try{ const wj=await wxR.json(); const c=wj.current||{}; if(c.wind_direction_10m!=null){ state.weather={windDir:c.wind_direction_10m,windSpeed:Math.round(c.wind_speed_10m),temp:Math.round(c.temperature_2m),humidity:Math.round(c.relative_humidity_2m)}; state.scenario.windDir=state.weather.windDir; state.scenario.windSpeed=state.weather.windSpeed; } }catch(e){}
+  state.live={fetchedAt:Date.now(),series,agent:false}; state.dataMode="live"; state.dataSource="open-meteo"; return true;
+}
+async function loadLiveData(city){
+  state.liveError=null;
+  try{ await tryAgent(city); return true; }catch(eAgent){
+    try{ await tryDirect(city); return true; }catch(eDirect){
+      state.liveError=(eDirect&&eDirect.message)||"fetch failed"; state.dataMode="sample"; state.dataSource=null; city.stations.forEach(s=>s.live=null); state.live=null; return false;
+    }
+  }
+}
+
+/* ============================ TWIN ENGINE ============================ */
+function compFromSplit(st,pm){ const[t,i,c,b]=st.split.map(f=>f*pm); return{traffic:t,industrial:i,construction:c,background:b}; }
+function applyScen(comp,scen){ let{traffic:tr,industrial:ind,construction:con,background:bg}=comp; if(scen){ tr*=(1-(scen.traffic||0)/100); tr*=(1-0.35*(scen.ebus||0)/100); con*=(1-(scen.construction||0)/100); ind*=(1-(scen.industrial||0)/100); if(scen.lez)tr*=0.6; } return{pm:tr+ind+con+bg,comp:{traffic:tr,industrial:ind,construction:con,background:bg}}; }
+function samplePM25(st,hour,scen){ const d=diurnalMul(hour); let[tr,ind,con,bg]=st.split.map(f=>f*st.base); tr*=(0.6+0.4*d*1.15); con*=(0.8+0.2*d); bg*=(0.85+0.15*d); return applyScen({traffic:tr,industrial:ind,construction:con,background:bg},scen); }
+function nodeValues(scen){ const city=state.city, pol=state.pollutant, rel=POL_REL[pol]; return city.stations.map(st=>{ let pm,comp,value; if(state.dataMode==='live'&&st.live&&st.live.pm25!=null){ const basePm=st.live.pm25, baseComp=compFromSplit(st,basePm), sc=applyScen(baseComp,scen); pm=sc.pm; comp=sc.comp; let baseVal=st.live[pol]!=null?st.live[pol]:basePm*rel; const ratio=basePm>0?pm/basePm:1; value=scen?baseVal*ratio:baseVal; }else{ const r=samplePM25(st,state.hour,scen); pm=r.pm; comp=r.comp; value=r.pm*rel; } return {st,pm25:pm,comp,value,p:project(st.lat,st.lon)}; }); }
+function windVector(scen){ const dir=(scen&&scen.windDir!=null)?scen.windDir:state.weather.windDir; const spd=(scen&&scen.windSpeed!=null)?scen.windSpeed:state.weather.windSpeed; const towards=(dir+180)*Math.PI/180; const mag=Math.min(3.2,(spd||0)*0.16); return {dx:Math.sin(towards)*mag,dy:-Math.cos(towards)*mag,spd:spd||0}; }
+function interpolate(nodes,scen,gx,gy){ const wv=windVector(scen); const disp=1+(wv.spd-9)*0.03; const cells=[]; for(let j=0;j<gy;j++)for(let i=0;i<gx;i++){ const x=(i+0.5)/gx*100,y=(j+0.5)/gy*100; let num=0,den=0; nodes.forEach(n=>{const sx=n.p.x+wv.dx,sy=n.p.y+wv.dy; let d2=(x-sx)**2+(y-sy)**2; if(d2<1.2)d2=1.2; const w=1/Math.pow(d2,1.35); num+=w*n.value; den+=w;}); cells.push({x,y,v:(den?num/den:0)/disp}); } return cells; }
+function sampleAt(lat,lon,nodes,scen){ const wv=windVector(scen); const p=project(lat,lon); let num=0,den=0; nodes.forEach(n=>{const sx=n.p.x+wv.dx,sy=n.p.y+wv.dy; let d2=(p.x-sx)**2+(p.y-sy)**2; if(d2<1.2)d2=1.2; const w=1/Math.pow(d2,1.35); num+=w*n.value; den+=w;}); const disp=1+(wv.spd-9)*0.03; return den?(num/den)/disp:0; }
+function cityAvg(nodes){ return nodes.reduce((a,n)=>a+n.value,0)/nodes.length; }
+function cityMedian(nodes){ const v=nodes.map(n=>n.value).sort((a,b)=>a-b); const m=Math.floor(v.length/2); return v.length%2?v[m]:(v[m-1]+v[m])/2; }
+function citySeries(scen){ const pol=state.pollutant; if(state.dataMode==='live'&&state.live&&state.live.series){ const s=state.live.series,arr=s.data[pol]||[],t=s.time,nowIdx=s.nowIdx,out=[]; for(let k=-24;k<=8;k++){ const i=nowIdx+k; if(i<0||i>=arr.length)continue; const val=arr[i]; if(val==null)continue; out.push({k,h:new Date(t[i]).getHours(),val,forecast:k>0}); } if(out.length>5)return out; } const out=[]; for(let k=-24;k<=8;k++){ const h=state.hour+k; let s=0; state.city.stations.forEach(st=>{const r=samplePM25(st,h,k>0?scen:null); s+=r.pm;}); out.push({k,h:((h%24)+24)%24,val:(s/state.city.stations.length)*POL_REL[pol],forecast:k>0}); } return out; }
+
+/* ============================ SHELL ============================ */
+const SCREENS=[{id:"live",n:"Live Environment",ic:"map"},{id:"hotspots",n:"Pollution Hotspots",ic:"activity"},{id:"scenario",n:"Scenario Lab",ic:"beaker"},{id:"forecast",n:"Forecast & Alerts",ic:"bell"},{id:"brief",n:"Decision Brief",ic:"file"},{id:"register",n:"Data & Model Register",ic:"database"}];
+function render(){ const app=document.getElementById('app'); if(state.screen==="selector"){ app.innerHTML=viewSelector(); wire(); return; } if(state.screen==="loading"){ app.innerHTML=viewLoading(); wire(); return; } app.innerHTML=''+'<aside class="sidebar no-print"><div class="brand"><div class="mark">'+LOGO+'<div><div class="name">Urban Environment Twin<br>Air Quality</div><div class="sub">CiTI Practice</div></div></div></div><nav class="nav"><button class="nav-item" data-act="home"><span class="nav-num">'+icon('globe')+'</span><span>Change city</span></button>'+SCREENS.map((s,i)=>'<button class="nav-item'+(state.screen===s.id?' active':'')+'" data-act="nav" data-screen="'+s.id+'"><span class="nav-num">'+(i+1)+'</span>'+icon(s.ic)+'<span>'+s.n+'</span></button>').join('')+'</nav>'+sideCard()+'</aside><div class="main-wrap"><header class="topbar no-print"><div class="crumb">'+dataBadge()+' <b style="margin-left:8px">'+state.city.name+'</b> · '+SCREENS.find(s=>s.id===state.screen).n+'</div><div class="spacer"></div><div class="polsel">'+Object.values(POLLUTANTS).map(p=>'<button class="'+(state.pollutant===p.id?'on':'')+'" data-act="pol" data-p="'+p.id+'">'+p.label+'</button>').join('')+'</div><button class="btn sm" data-act="refresh">'+icon('refresh')+(state.dataMode==='live'?'Refetch':'Retry live')+'</button></header><main class="main">'+screenBody()+'</main></div>'; wire(); }
+function dataBadge(){ if(state.dataMode==='live'){ const t=state.live?new Date(state.live.fetchedAt):new Date(); const src=state.dataSource||"live"; const isAgent=src.indexOf('agent')>=0; const label=isAgent?(src.indexOf('waqi')>=0?'Agent + WAQI':'Agent'):'Live'; const cls=isAgent?'tag-agent':'tag-live'; return '<span class="pill '+cls+'" title="Data source: '+src+'">● '+label+' · '+String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0')+'</span>'; } return '<span class="pill tag-demo" title="Illustrative sample data">◆ Sample data</span>'; }
+function sideCard(){ const nodes=nodeValues(null); const avg=cityAvg(nodes); const b=bandForConc(state.pollutant,avg,state.city.standard); return '<div class="sidecard"><div style="font-weight:700;font-size:13px;margin-bottom:6px">'+state.city.flag+' '+state.city.name+'</div><div class="row"><span>Standard</span><b>'+standardName(state.city.standard)+'</b></div><div class="row"><span>Pollutant</span><b>'+POLLUTANTS[state.pollutant].label+'</b></div><div class="row"><span>City avg</span><b>'+avg.toFixed(0)+' '+POLLUTANTS[state.pollutant].unit+'</b></div><div class="row"><span>Band</span><b style="color:'+b.hex+'">'+b.name+'</b></div><div class="row"><span>Wind</span><b>'+degToCompass(state.weather.windDir)+' '+state.weather.windSpeed+' km/h</b></div><div class="row"><span>Source</span><b>'+(state.dataMode==='live'?(state.dataSource||'live'):'sample')+'</b></div></div>'; }
+function degToCompass(d){ if(d==null)return"—"; const s=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"]; return s[Math.round(((d%360)/22.5))%16]; }
+function screenBody(){ switch(state.screen){ case"live":return viewLive(); case"hotspots":return viewHotspots(); case"scenario":return viewScenario(); case"forecast":return viewForecast(); case"brief":return viewBrief(); case"register":return viewRegister(); default:return viewLive(); } }
+function pageHead(t,s){ return '<div class="eyebrow">'+SCREENS.find(x=>x.id===state.screen).n+'</div><h1 class="h-page">'+t+'</h1><p class="sub" style="margin-bottom:20px">'+s+'</p>'; }
+
+/* ============================ SELECTOR ============================ */
+function dropdownOptions(){
+  let out='<optgroup label="Featured">'+FEATURED_ORDER.map(id=>{const c=CITIES[id];return '<option value="'+id+'">'+c.flag+'  '+c.name+' — '+c.country+'</option>';}).join('')+'</optgroup>';
+  MARKET_ORDER.forEach(m=>{ out+='<optgroup label="'+m.label+'">'+m.ids.map(id=>{const c=CITIES[id];return '<option value="'+id+'">'+c.flag+'  '+c.name+' — '+c.country+'</option>';}).join('')+'</optgroup>'; });
+  return out;
+}
+function viewSelector(){ return '<div class="main"><div class="sel-hero">'+heroScene()
+   +'<div class="jumpbar"><div class="jb-label">'+icon('compass')+'Quick jump</div><select id="cityJump" data-act="jump"><option value="" selected disabled>Search or pick a city…</option>'+dropdownOptions()+'</select><button class="btn primary sm" data-act="jumpgo">Open '+icon('arrowr')+'</button></div>'
+   +'<div class="callout info" style="margin:14px 0">'+icon('info')+' <b>v3</b> reads live data from a published data agent (<span class="mono">'+AGENT_DATA_DIR+'/&lt;city&gt;.json</span>) when available, then falls back to direct Open-Meteo, then to clearly-labelled sample data.</div>'
+   +'<div class="grp-label">'+icon('star')+'Featured cities<span class="gl-note">pinned quick-access set</span></div><div class="chipgrid">'+FEATURED_ORDER.map(id=>cityChip(CITIES[id],true)).join('')+'</div>'
+   +MARKET_ORDER.map(m=>'<div class="grp-label">'+icon('globe')+m.label+(m.note?'<span class="gl-note">'+m.note+'</span>':'')+'</div><div class="chipgrid">'+m.ids.map(id=>cityChip(CITIES[id],false)).join('')+'</div>').join('')
+   +'<div class="qualify" style="margin-top:24px">'+icon('shield')+' Runs entirely in your browser. Cities grouped by market (NA · UKI · EMEA · APAC). AQI shown in India NAQI for Indian cities and EEA European AQI bands elsewhere as an international reference.</div>'
+   +'</div></div>'; }
+function cityChip(city,feat){ return '<button class="citychip'+(feat?' feat':'')+'" data-act="selcity" data-id="'+city.id+'" title="'+city.name+' — '+city.country+'"><span class="cf">'+city.flag+'</span><span class="cbody"><span class="cn">'+city.name+'</span><span class="cc">'+city.country+' · '+city.stations.length+' pts</span></span></button>'; }
+function viewLoading(){ return '<div class="main"><div class="loadwrap">'+LOGO+'<div class="spinner" style="margin-top:24px"></div><h2 style="font-size:20px">Loading air-quality data…</h2><p class="muted" style="font-size:13.5px">'+(state.city?state.city.flag+' '+state.city.name:'')+'</p><div class="loadsteps"><div>'+icon('database')+' Trying data agent ('+AGENT_DATA_DIR+'/'+(state.city?state.city.id:'')+'.json)</div><div>'+icon('refresh')+' Falling back to Open-Meteo if needed</div><div>'+icon('layers')+' Building the pollution surface</div></div><p class="muted" style="font-size:12px;margin-top:18px">If nothing is reachable, the twin opens on sample data.</p></div></div>'; }
+
+/* ============================ MAP ============================ */
+function cityBackdrop(){ return '<path d="M18,20 Q34,8 55,12 Q78,16 86,34 Q92,52 82,72 Q70,90 46,88 Q22,86 14,64 Q8,42 18,20 Z" fill="#141527" stroke="#2a2c48" stroke-width="0.6"/><circle cx="50" cy="50" r="26" fill="none" stroke="#2f3252" stroke-width="0.5" stroke-dasharray="1.4 1.2"/><path d="M50,14 L50,86 M16,50 L86,50 M26,26 L74,74 M74,26 L26,74" stroke="#26283f" stroke-width="0.45"/>'; }
+function renderMap(scen,opts){ opts=opts||{}; const gx=opts.gx||34,gy=opts.gy||30; const nodes=nodeValues(scen); const cells=state.showSurface?interpolate(nodes,scen,gx,gy):[]; const cw=100/gx,ch=100/gy; const surface=state.showSurface?'<g opacity="0.72">'+cells.map(c=>'<rect x="'+(c.x-cw/2).toFixed(2)+'" y="'+(c.y-ch/2).toFixed(2)+'" width="'+(cw+0.15).toFixed(2)+'" height="'+(ch+0.15).toFixed(2)+'" fill="'+bandForConc(state.pollutant,c.v,state.city.standard).hex+'"/>').join('')+'</g>':''; const recs=state.showReceptors?'<g>'+state.city.receptors.map(r=>{const p=project(r.lat,r.lon);return '<g style="pointer-events:none"><rect x="'+(p.x-1.6).toFixed(2)+'" y="'+(p.y-1.6).toFixed(2)+'" width="3.2" height="3.2" rx="0.6" fill="#fff" stroke="#460073" stroke-width="0.5" opacity="0.9"/><circle cx="'+p.x.toFixed(2)+'" cy="'+p.y.toFixed(2)+'" r="0.5" fill="#460073"/></g>';}).join('')+'</g>':''; const sts=state.showStations?'<g>'+nodes.map(n=>{const b=bandForConc(state.pollutant,n.value,state.city.standard);const sel=state.selectedStation===n.st.id;return '<g class="stationdot" data-station="'+n.st.id+'"><circle cx="'+n.p.x.toFixed(2)+'" cy="'+n.p.y.toFixed(2)+'" r="'+(sel?3.4:2.6)+'" fill="'+b.hex+'" stroke="#fff" stroke-width="'+(sel?1.4:0.9)+'"/><text x="'+n.p.x.toFixed(2)+'" y="'+(n.p.y+0.9).toFixed(2)+'" font-size="2.0" fill="#fff" text-anchor="middle" font-weight="700" style="pointer-events:none">'+Math.round(n.value)+'</text></g>';}).join('')+'</g>':''; const wv=windVector(scen); const cx=90,cy=12,len=6,ang=Math.atan2(wv.dy,wv.dx),ex=cx+Math.cos(ang)*len,ey=cy+Math.sin(ang)*len; const rose='<g opacity="0.95"><circle cx="'+cx+'" cy="'+cy+'" r="7.5" fill="rgba(20,21,40,.7)" stroke="#3a3d63" stroke-width="0.5"/><line x1="'+cx+'" y1="'+cy+'" x2="'+ex.toFixed(2)+'" y2="'+ey.toFixed(2)+'" stroke="#7BD3FF" stroke-width="1.1"/><circle cx="'+ex.toFixed(2)+'" cy="'+ey.toFixed(2)+'" r="1" fill="#7BD3FF"/><text x="'+cx+'" y="'+(cy+11.5)+'" font-size="2.2" fill="#9aa" text-anchor="middle">wind</text></g>'; return '<div class="mapwrap" data-mapscope="'+(opts.scope||'main')+'">'+(opts.controls!==false?'<div class="mapctl"><button class="mapchip'+(state.showSurface?' on':'')+'" data-act="toggle" data-t="showSurface">Heat surface</button><button class="mapchip'+(state.showStations?' on':'')+'" data-act="toggle" data-t="showStations">Stations</button><button class="mapchip'+(state.showReceptors?' on':'')+'" data-act="toggle" data-t="showReceptors">Schools &amp; hospitals</button></div>':'')+'<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">'+cityBackdrop()+surface+recs+sts+rose+'</svg><div class="tooltip" id="tt-'+(opts.scope||'main')+'"></div></div>'; }
+function mapLegend(){ const names=state.city.standard==='india'?NAQI_NAMES:EEA_NAMES; return '<div class="maplegend">'+names.map((n,i)=>'<span><i style="background:'+RAMP[i]+'"></i>'+n+'</span>').join('')+'<span style="margin-left:auto">'+icon('school')+' school/hospital</span></div>'; }
+
+/* ============================ LIVE ENVIRONMENT ============================ */
+function viewLive(){ const nodes=nodeValues(null).sort((a,b)=>b.value-a.value); const avg=cityAvg(nodes),b=bandForConc(state.pollutant,avg,state.city.standard),worst=nodes[0],best=nodes[nodes.length-1],p=POLLUTANTS[state.pollutant]; return pageHead("Live city pollution map","Concentrations at "+state.city.stations.length+" points across "+state.city.name+", interpolated into a continuous surface, with wind context.")+(state.dataMode==='sample'?'<div class="callout warn" style="margin-bottom:16px">'+icon('alert')+' Live data unavailable'+(state.liveError?' ('+esc(state.liveError)+')':'')+' — showing <b>illustrative sample data</b>. Use “Retry live” in the top bar.</div>':'')+'<div class="kpis" style="margin-bottom:18px">'+kpi("City average",avg.toFixed(0)+' '+p.unit,b.name,b.hex)+kpi("Worst point",Math.round(worst.value)+' '+p.unit,worst.st.name,bandForConc(state.pollutant,worst.value,state.city.standard).hex)+kpi("Cleanest point",Math.round(best.value)+' '+p.unit,best.st.name,bandForConc(state.pollutant,best.value,state.city.standard).hex)+kpi("Wind",degToCompass(state.weather.windDir)+' · '+state.weather.windSpeed+' km/h',state.weather.temp+'°C · '+state.weather.humidity+'% RH',"var(--blue)")+'</div><div class="maplayout"><div><div class="card" style="padding:14px">'+renderMap(null)+mapLegend()+'</div>'+(state.dataMode==='sample'?timeSlider():liveNote())+'</div><div class="card pad"><h3 style="margin-bottom:6px">Points, worst first</h3><div class="muted" style="font-size:12px;margin-bottom:8px">Click to inspect on the map</div><div class="stationside">'+nodes.map(stationRow).join('')+'</div></div></div>'+(state.selectedStation?stationDetail(nodes.find(n=>n.st.id===state.selectedStation)):'')+'<div class="callout warn" style="margin-top:20px">'+icon('info')+' The heat surface is an <b>inverse-distance interpolation</b> of '+state.city.stations.length+' points, advected by wind — an estimate, least reliable far from any point. '+(state.dataMode==='live'?'Live values are model output (CAMS ≈11 km) unless a WAQI ground reading is present.':'')+'</div>'; }
+function liveNote(){ return '<div class="card pad" style="margin-top:14px"><div style="font-size:12.5px;color:var(--ink-2)">'+icon('info')+' <b>Live snapshot</b> ('+(state.dataSource||'live')+'). Values reflect the latest available hour for '+state.city.name+'. Source attribution and scenarios use assumed source shares layered on the live baseline.</div></div>'; }
+function kpi(k,v,m,col){return '<div class="kpi"><div class="k">'+k+'</div><div class="v" style="'+(col?'color:'+col:'')+'">'+v+'</div><div class="m">'+m+'</div></div>';}
+function stationRow(n){ const b=bandForConc(state.pollutant,n.value,state.city.standard); const aqi=aqiNumber(state.pollutant,n.value,state.city.standard,n.st.live&&n.st.live.european_aqi); return '<div class="srow" data-act="selstation" data-station="'+n.st.id+'"><div class="sswatch" style="background:'+b.hex+'">'+Math.round(n.value)+'</div><div><div class="sn">'+n.st.name+'</div><div class="sm">'+n.st.area+'</div></div><div class="sv"><b style="color:'+b.hex+'">'+b.name+'</b><span>'+(aqi!=null?'AQI '+aqi:'')+'</span></div></div>'; }
+function stationDetail(n){ if(!n)return''; const c=n.comp,tot=c.traffic+c.industrial+c.construction+c.background; const parts=[["Traffic",c.traffic,"var(--red)","car"],["Construction",c.construction,"var(--orange)","layers"],["Industrial",c.industrial,"var(--purple)","factory"],["Background",c.background,"var(--ink-3)","wind"]]; return '<div class="section-head"><h2>'+n.st.name+' — source attribution</h2><div class="d">Estimated split by source ('+(state.dataMode==='live'?'assumed shares on the live baseline':'illustrative decomposition')+' — not measured apportionment)</div></div><div class="card pad"><div style="display:flex;height:30px;border-radius:9px;overflow:hidden;border:1px solid var(--line)">'+parts.map(pt=>'<div title="'+pt[0]+'" style="width:'+(pt[1]/tot*100)+'%;background:'+pt[2]+'"></div>').join('')+'</div><div class="legend" style="justify-content:flex-start;margin-top:12px">'+parts.map(pt=>'<span>'+icon(pt[3])+' <i style="background:'+pt[2]+'"></i>'+pt[0]+' — <b>'+Math.round(pt[1])+' µg/m³</b> ('+Math.round(pt[1]/tot*100)+'%)</span>').join('')+'</div></div>'; }
+function timeSlider(){ return '<div class="card pad" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><label style="font-size:12.5px;font-weight:600">Time of day (sample)</label><b>'+String(state.hour).padStart(2,'0')+':00</b></div><input type="range" min="0" max="23" value="'+state.hour+'" data-act="hour" style="width:100%;accent-color:var(--purple)"/><div class="muted" style="font-size:11px;margin-top:4px">Diurnal pattern — morning/evening traffic peaks. Live mode uses the actual current hour instead.</div></div>'; }
+
+/* ============================ HOTSPOTS ============================ */
+function viewHotspots(){ const nodes=nodeValues(null).sort((a,b)=>b.value-a.value); const p=POLLUTANTS[state.pollutant]; const med=cityMedian(nodes); const rows=nodes.map((n,i)=>({n,i,dev:(n.value-med)/med*100})); return pageHead("Pollution hotspots","Where "+state.city.name+" is worst right now, versus the city median, with likely contributing factors shown as hypotheses.")+'<div class="card" style="overflow:hidden"><table class="tbl"><thead><tr><th>#</th><th>Location</th><th>Now ('+p.label+')</th><th>Band</th><th>vs city median</th><th>Likely factors (hypotheses)</th></tr></thead><tbody>'+rows.map(hotspotRow).join('')+'</tbody></table></div><div class="section-head"><h2>Automated read</h2></div><div class="card pad">'+hotspotInsights(rows,med)+'</div><div class="callout warn" style="margin-top:18px">'+icon('alert')+' Contributing factors are <b>generated hypotheses</b> from source mix, wind and context — not confirmed causes. Confirm with counts, inspection or source apportionment before acting.</div>'; }
+function hotspotRow(r){ const n=r.n,b=bandForConc(state.pollutant,n.value,state.city.standard),devCol=r.dev>10?'var(--red)':r.dev<-10?'var(--green)':'var(--ink-3)',arrow=r.dev>5?icon('trend'):r.dev<-5?icon('down'):''; return '<tr><td><span class="rank" style="background:'+b.hex+'">'+(r.i+1)+'</span></td><td><b>'+n.st.name+'</b><div class="muted" style="font-size:11.5px">'+n.st.area+'</div></td><td style="font-weight:700;font-variant-numeric:tabular-nums">'+Math.round(n.value)+' <span class="muted" style="font-weight:400">'+POLLUTANTS[state.pollutant].unit+'</span></td><td><span class="pill '+b.cls+'">'+b.name+'</span></td><td style="color:'+devCol+';font-weight:600">'+arrow+' '+(r.dev>0?'+':'')+r.dev.toFixed(0)+'%</td><td style="font-size:12px">'+factorHyp(n)+'</td></tr>'; }
+function factorHyp(n){ const c=n.comp,tot=c.traffic+c.industrial+c.construction+c.background,f=[]; if(c.traffic/tot>0.45)f.push("heavy traffic"); if(c.construction/tot>0.22)f.push("construction dust"); if(c.industrial/tot>0.25)f.push("industrial sources"); if(state.weather.windSpeed<7)f.push("low wind / poor dispersion"); if(state.dataMode==='sample'&&diurnalMul(state.hour)>1.2)f.push("peak-hour buildup"); if(!f.length)f.push("elevated background"); return f.map(x=>'<span class="pill tag-neutral" style="font-size:10.5px;margin:1px 2px">'+x+'</span>').join(''); }
+function hotspotInsights(rows,med){ const worst=rows[0],clean=rows[rows.length-1],wd=degToCompass(state.weather.windDir); const trafficHeavy=rows.filter(r=>r.n.comp.traffic/(r.n.comp.traffic+r.n.comp.industrial+r.n.comp.construction+r.n.comp.background)>0.45).length; const out=[insight("target","Top hotspot",worst.n.st.name+" leads at "+Math.round(worst.n.value)+" "+POLLUTANTS[state.pollutant].unit+", "+(worst.dev>0?"about "+worst.dev.toFixed(0)+"% above the city median.":"around the city median."),"#FCE9E9","var(--red)"),insight("car","Dominant driver",trafficHeavy+" of "+rows.length+" points are traffic-dominated. Road-transport measures would have the broadest reach.","#FDF2E4","var(--orange)"),insight("wind","Weather context","Wind from the "+wd+" at "+state.weather.windSpeed+" km/h. "+(state.weather.windSpeed<7?"Low wind is limiting dispersion.":"Moderate wind is aiding dispersion downwind.")),insight("leaf","Cleanest area",clean.n.st.name+" is cleanest at "+Math.round(clean.n.value)+" "+POLLUTANTS[state.pollutant].unit+" — a useful control.","#E7F6EF","var(--green)")]; return out.map(o=>'<div class="insightbox"><div class="ib-ic" style="background:'+o.bg+';color:'+o.col+'">'+icon(o.ic)+'</div><div><div class="ib-t">'+o.t+'</div><div class="ib-b">'+o.b+'</div></div></div>').join(''); }
+function insight(ic,t,b,bg,col){return{ic,t,b,bg:bg||"#F5EEFB",col:col||"var(--purple-deep)"};}
+
+/* ============================ SCENARIO ============================ */
+function viewScenario(){ const sc=state.scenario,p=POLLUTANTS[state.pollutant]; const baseNodes=nodeValues(null),scenNodes=nodeValues(sc),baseAvg=cityAvg(baseNodes),scenAvg=cityAvg(scenNodes),delta=scenAvg-baseAvg,pct=delta/baseAvg*100; const recRows=state.city.receptors.map(r=>{const b=sampleAt(r.lat,r.lon,baseNodes,null),s=sampleAt(r.lat,r.lon,scenNodes,sc);return{r,b,s,d:s-b};}); return pageHead("Scenario Lab","Test an intervention against "+(state.dataMode==='live'?"the live baseline":"today's sample baseline")+" for "+state.city.name+". Directional demonstrator, not a validated dispersion model.")+'<div class="scenlayout"><div class="card pad"><h3 style="margin-bottom:14px">Intervention levers</h3>'+slider("traffic","Traffic reduction",sc.traffic,0,80,"%","Cut vehicle volumes")+slider("ebus","Electric bus penetration",sc.ebus,0,100,"%","Share of buses electrified")+slider("construction","Construction dust control",sc.construction,0,90,"%","Suppression, covering, wheel-wash")+slider("industrial","Industrial emission control",sc.industrial,0,80,"%","Scrubbers, cleaner fuel")+'<div class="field" style="margin:16px 0 10px"><label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13.5px"><input type="checkbox" data-act="lez" '+(sc.lez?'checked':'')+' style="width:16px;height:16px;accent-color:var(--purple)"/> Low-emission zone (−40% traffic)</label></div><div class="divider"></div><h4 style="font-size:13px;margin-bottom:10px">Weather sensitivity</h4>'+slider("windSpeed","Wind speed",sc.windSpeed,0,30,"km/h","Higher wind disperses pollution")+sliderWind("windDir","Wind direction",sc.windDir)+'<div class="btnrow" style="margin-top:16px"><button class="btn primary" data-act="applyscen">'+icon('rocket')+'Run scenario</button><button class="btn" data-act="resetscen">Reset</button></div></div><div><div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">'+kpi("Baseline avg",baseAvg.toFixed(0)+' '+p.unit,state.dataMode==='live'?(state.dataSource||'live'):'sample',bandForConc(state.pollutant,baseAvg,state.city.standard).hex)+kpi("Scenario avg",scenAvg.toFixed(0)+' '+p.unit,"modelled",bandForConc(state.pollutant,scenAvg,state.city.standard).hex)+kpi("Change",(delta>0?'+':'')+delta.toFixed(0)+' '+p.unit,(pct>0?'+':'')+pct.toFixed(1)+'%',delta<0?'var(--green)':delta>0?'var(--red)':'var(--ink-3)')+'</div><div class="card pad"><div class="dualmap"><div><div class="dm-title">'+icon('map')+'Baseline</div>'+renderMap(null,{scope:'base',controls:false,gx:28,gy:24})+'</div><div><div class="dm-title">'+icon('beaker')+'Scenario</div>'+renderMap(sc,{scope:'scen',controls:false,gx:28,gy:24})+'</div></div>'+mapLegend()+'</div><div class="section-head" style="margin:22px 0 12px"><h2>Exposure at sensitive locations</h2><div class="d">Modelled '+p.label+' — baseline vs scenario</div></div><div class="card" style="overflow:hidden"><table class="tbl"><thead><tr><th>Location</th><th>Type</th><th>Baseline</th><th>Scenario</th><th>Change</th></tr></thead><tbody>'+recRows.map(rr=>'<tr><td><b>'+rr.r.name+'</b></td><td><span class="pill tag-neutral" style="font-size:10.5px">'+icon(rr.r.type==='hospital'?'shield':'school')+rr.r.type+'</span></td><td style="font-variant-numeric:tabular-nums">'+Math.round(rr.b)+'</td><td style="font-variant-numeric:tabular-nums;font-weight:700;color:'+bandForConc(state.pollutant,rr.s,state.city.standard).hex+'">'+Math.round(rr.s)+'</td><td style="color:'+(rr.d<0?'var(--green)':rr.d>0?'var(--red)':'var(--ink-3)')+';font-weight:600">'+(rr.d>0?'+':'')+rr.d.toFixed(0)+' '+p.unit+'</td></tr>').join('')+'</tbody></table></div></div></div><div class="section-head"><h2>Scenario read</h2></div><div class="card pad">'+scenInsights(baseAvg,scenAvg,recRows,sc)+'</div><div class="callout warn" style="margin-top:18px">'+icon('alert')+' Effects are estimated by scaling assumed source components and re-interpolating'+(state.dataMode==='live'?', layered on live concentrations':'')+'. Directional planning aid — commission a calibrated dispersion study before committing capital.</div>'; }
+function slider(k,l,v,mn,mx,u,h){ return '<div class="slider-field"><div class="sl-top"><label>'+l+'</label><span class="sl-val">'+v+' '+u+'</span></div><input type="range" min="'+mn+'" max="'+mx+'" value="'+v+'" data-act="scen" data-key="'+k+'"/><div class="sl-hint">'+h+'</div></div>'; }
+function sliderWind(k,l,v){ return '<div class="slider-field"><div class="sl-top"><label>'+l+'</label><span class="sl-val">'+degToCompass(v)+' ('+v+'°)</span></div><input type="range" min="0" max="359" step="5" value="'+v+'" data-act="scen" data-key="'+k+'"/><div class="sl-hint">Direction the wind blows from</div></div>'; }
+function scenInsights(baseAvg,scenAvg,recRows,sc){ const delta=scenAvg-baseAvg,pct=delta/baseAvg*100,active=[]; if(sc.traffic)active.push(sc.traffic+"% traffic cut"); if(sc.ebus)active.push(sc.ebus+"% e-bus"); if(sc.construction)active.push(sc.construction+"% dust control"); if(sc.industrial)active.push(sc.industrial+"% industrial control"); if(sc.lez)active.push("low-emission zone"); const out=[insight(delta<0?"down":"trend","Net effect",active.length?("Combined intervention ("+active.join(", ")+") shifts the city average by "+(pct>0?'+':'')+pct.toFixed(1)+"% — "+(delta<-1?"a meaningful improvement":delta<0?"a modest improvement":"little change")+"."):"No levers set — move a slider to model an intervention.",delta<0?"#E7F6EF":"#F5EEFB",delta<0?"var(--green)":"var(--purple-deep)")]; if(active.length){ const best=recRows.slice().sort((a,b)=>a.d-b.d)[0]; out.push(insight("school","Sensitive locations","Largest reduction is at "+best.r.name+" ("+best.d.toFixed(0)+" "+POLLUTANTS[state.pollutant].unit+"). Prioritising near schools/hospitals maximises health benefit.")); } const wv=windVector(sc); out.push(insight("wind","Wind sensitivity","At "+wv.spd+" km/h from the "+degToCompass(sc.windDir)+", pollution is carried toward the "+degToCompass((sc.windDir+180)%360)+". Downwind areas inherit upwind emissions.")); return out.map(o=>'<div class="insightbox"><div class="ib-ic" style="background:'+o.bg+';color:'+o.col+'">'+icon(o.ic)+'</div><div><div class="ib-t">'+o.t+'</div><div class="ib-b">'+o.b+'</div></div></div>').join(''); }
+
+/* ============================ FORECAST ============================ */
+function viewForecast(){ const series=citySeries(state.scenario),p=POLLUTANTS[state.pollutant],alerts=buildAlerts(); const isLive=state.dataMode==='live'&&state.live&&state.live.series; return pageHead("Forecast & alerts","A short-horizon outlook for "+state.city.name+" and a watchlist of hotspots and exposed locations.")+'<div class="card pad"><h3 style="margin-bottom:4px">City '+p.label+' — last 24h and next 8h</h3><div class="muted" style="font-size:12px;margin-bottom:6px">Solid = recent, dashed = forecast. '+(isLive?'<b>Live forecast</b> for the city centre.':'Sample diurnal projection.')+'</div><div class="chart-wrap">'+forecastChart(series)+'</div><div class="legend"><span><i style="background:var(--purple)"></i>Recent</span><span><i style="background:var(--blue)"></i>Forecast</span></div></div><div class="section-head"><h2>Alert watchlist</h2><div class="d">Auto-generated from current levels, forecast direction and sensitive-location exposure</div></div><div class="card pad">'+(alerts.length?alerts.map(alertRow).join(''):'<p class="muted">No active alerts — all monitored areas within acceptable bands.</p>')+'</div><div class="callout info" style="margin-top:18px">'+icon('info')+' In a live deployment these thresholds map to operator playbooks — school advisories, traffic-management triggers, construction-halt notices — each retaining human approval.</div>'; }
+function forecastChart(series){ const W=760,H=260,padL=42,padR=16,padT=16,padB=34; if(!series.length)return'<p class="muted">No series available.</p>'; const vals=series.map(s=>s.val),vmax=Math.max(...vals)*1.15||1; const x=i=>padL+(i/(series.length-1))*(W-padL-padR),y=v=>H-padB-(v/vmax)*(H-padT-padB); let grid=''; for(let g=0;g<=4;g++){const vv=vmax*g/4,yy=y(vv);grid+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#EFECF4"/><text x="'+(padL-6)+'" y="'+(yy+3)+'" font-size="9" fill="#6B6480" text-anchor="end">'+Math.round(vv)+'</text>';} const recent=series.filter(s=>!s.forecast),fc=series.filter(s=>s.forecast),idxNow=recent.length-1; const recentPath=recent.map((s,i)=>((i===0?'M':'L')+x(i)+' '+y(s.val).toFixed(1))).join(' '); const fcPath=fc.length?('M'+x(idxNow)+' '+y(recent[idxNow].val).toFixed(1)+' '+fc.map((s,i)=>('L'+x(idxNow+1+i)+' '+y(s.val).toFixed(1))).join(' ')):''; let xlab=''; series.forEach((s,i)=>{if(i%6===0)xlab+='<text x="'+x(i)+'" y="'+(H-padB+16)+'" font-size="9" fill="#6B6480" text-anchor="middle">'+String(s.h).padStart(2,'0')+'h</text>';}); const nowX=x(idxNow); return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+W+'px">'+grid+'<line x1="'+nowX+'" y1="'+padT+'" x2="'+nowX+'" y2="'+(H-padB)+'" stroke="#DED9E8" stroke-dasharray="3 3"/><text x="'+nowX+'" y="'+(padT+2)+'" font-size="9" fill="#6B6480" text-anchor="middle">now</text><path d="'+recentPath+'" fill="none" stroke="#A100FF" stroke-width="2.2"/>'+(fcPath?'<path d="'+fcPath+'" fill="none" stroke="#1466E0" stroke-width="2.2" stroke-dasharray="5 4"/>':'')+xlab+'</svg>'; }
+function buildAlerts(){ const nodes=nodeValues(null),std=state.city.standard,alerts=[]; nodes.forEach(n=>{const bd=bandForConc(state.pollutant,n.value,std); if(bd.idx>=3)alerts.push({sev:RAMP[bd.idx],t:bd.name+" air at "+n.st.name,d:Math.round(n.value)+" "+POLLUTANTS[state.pollutant].unit+" ("+bd.name+"). Consider advisories for sensitive groups nearby."});}); state.city.receptors.forEach(r=>{const v=sampleAt(r.lat,r.lon,nodes,null),bd=bandForConc(state.pollutant,v,std); if(bd.idx>=2)alerts.push({sev:RAMP[bd.idx],t:"Elevated exposure — "+r.name,d:"Modelled "+Math.round(v)+" "+POLLUTANTS[state.pollutant].unit+" ("+bd.name+") at this "+r.type+". Notify site; consider limiting outdoor activity."});}); const series=citySeries(null),now=series.find(s=>s.k===0),soon=series.find(s=>s.k===6); if(now&&soon&&soon.val>now.val*1.12)alerts.push({sev:RAMP[2],t:"Rising trend expected",d:"City average forecast to rise ~"+Math.round((soon.val/now.val-1)*100)+"% over the next 6 hours. Pre-position response."}); return alerts.slice(0,8); }
+function alertRow(a){ return '<div class="alertrow"><div class="al-sev" style="background:'+a.sev+'"></div><div><div class="al-t">'+a.t+'</div><div class="al-d">'+a.d+'</div></div></div>'; }
+
+/* ============================ BRIEF ============================ */
+function viewBrief(){ const nodes=nodeValues(null).sort((a,b)=>b.value-a.value),sc=state.scenario,scenNodes=nodeValues(sc),baseAvg=cityAvg(nodes),scenAvg=cityAvg(scenNodes),delta=scenAvg-baseAvg,pct=delta/baseAvg*100,p=POLLUTANTS[state.pollutant],worst=nodes.slice(0,3); const active=[]; if(sc.traffic)active.push(sc.traffic+"% traffic cut"); if(sc.ebus)active.push(sc.ebus+"% e-bus"); if(sc.construction)active.push(sc.construction+"% dust control"); if(sc.industrial)active.push(sc.industrial+"% industrial control"); if(sc.lez)active.push("low-emission zone"); const recRows=state.city.receptors.map(r=>({r,b:sampleAt(r.lat,r.lon,nodes,null),s:sampleAt(r.lat,r.lon,scenNodes,sc)})); const srcLabel=state.dataMode==='live'?(state.dataSource||'live'):'sample data'; return '<div class="btnrow no-print" style="justify-content:flex-end;margin-bottom:16px"><button class="btn" data-act="print">'+icon('print')+'Print / Save as PDF</button><button class="btn" data-act="exportjson">'+icon('download')+'Export configuration</button></div><div class="brief-sheet"><div class="brief-head"><div><span class="pill '+(state.dataMode==='live'?'tag-live':'tag-demo')+'" style="margin-bottom:6px">'+(state.dataMode==='live'?'● '+srcLabel:'◆ Sample data')+' · directional</span><br><div class="eyebrow">Urban Environment Twin — Air Quality</div><h1 style="font-size:24px;margin-top:6px">'+state.city.flag+' '+state.city.name+' — decision brief</h1><div class="muted" style="font-size:12.5px;margin-top:4px">'+p.name+' ('+p.label+') · '+standardName(state.city.standard)+' · wind '+degToCompass(state.weather.windDir)+' '+state.weather.windSpeed+' km/h</div></div><div style="text-align:right">'+LOGO+'<div style="font-size:10px;color:var(--ink-3);margin-top:4px">CiTI Practice</div></div></div><div class="kpis" style="margin-bottom:22px">'+kpi("City average",baseAvg.toFixed(0)+' '+p.unit,bandForConc(state.pollutant,baseAvg,state.city.standard).name,bandForConc(state.pollutant,baseAvg,state.city.standard).hex)+kpi("Worst hotspot",Math.round(worst[0].value)+' '+p.unit,worst[0].st.name,bandForConc(state.pollutant,worst[0].value,state.city.standard).hex)+kpi("Tested scenario",active.length?((pct>0?'+':'')+pct.toFixed(1)+'%'):'—',active.length?'vs baseline':'no levers set',delta<0?'var(--green)':'var(--ink-3)')+kpi("Sensitive sites",state.city.receptors.length,"tracked","var(--blue)")+'</div><div class="card" style="padding:12px;margin-bottom:22px;box-shadow:none">'+renderMap(null,{controls:false,gx:30,gy:26})+mapLegend()+'</div><div class="brief-cols"><div class="brief-block"><h4>Current condition</h4><ul><li>City average '+baseAvg.toFixed(0)+' '+p.unit+' — '+bandForConc(state.pollutant,baseAvg,state.city.standard).name+'.</li><li>Worst three: '+worst.map(w=>w.st.name+' ('+Math.round(w.value)+')').join(', ')+'.</li><li>Wind '+degToCompass(state.weather.windDir)+' at '+state.weather.windSpeed+' km/h — '+(state.weather.windSpeed<7?'poor dispersion':'moderate dispersion')+'.</li></ul><h4 style="margin-top:16px">Priority hotspots</h4><ul>'+worst.map(w=>'<li>'+w.st.name+' — '+w.st.area+'</li>').join('')+'</ul></div><div class="brief-block"><h4>Tested intervention</h4><ul>'+(active.length?active.map(a=>'<li>'+a+'</li>').join(''):'<li class="muted">No intervention modelled yet — set levers in the Scenario Lab.</li>')+'</ul>'+(active.length?'<div style="font-size:13px;margin-top:6px"><b>Estimated effect:</b> city average '+(pct>0?'+':'')+pct.toFixed(1)+'% ('+(delta>0?'+':'')+delta.toFixed(0)+' '+p.unit+').</div>':'')+'<h4 style="margin-top:16px">Exposure at sensitive sites</h4><ul>'+recRows.map(rr=>'<li>'+rr.r.name+': '+Math.round(rr.b)+(active.length?' → '+Math.round(rr.s):'')+' '+p.unit+'</li>').join('')+'</ul></div></div><div class="divider"></div><div class="brief-cols"><div class="brief-block"><h4>Recommended next analysis</h4><ul><li>Confirm the top hotspot with traffic counts and a site inspection.</li><li>Validate the leading scenario with a calibrated dispersion model.</li><li>Add low-cost sensors where station coverage is thin.</li><li>Map exposed schools/hospitals to an operator playbook.</li></ul></div><div class="brief-block"><h4>Facilitator notes</h4><textarea class="inp no-print" data-act="notes" style="min-height:90px" placeholder="Add workshop notes...">'+esc(state.notes)+'</textarea></div></div><div class="qualify">'+icon('info')+' '+(state.dataMode==='live'?'Live values are model output (CAMS ≈11 km) via the data agent / Open-Meteo, optionally enriched by WAQI ground sensors. ':'Illustrative sample data. ')+'Concentrations between points are interpolated; scenario effects are estimated by scaling assumed source shares. Not a validated dispersion study, not health advice, not a substitute for regulatory monitoring.</div></div>'; }
+
+/* ============================ REGISTER ============================ */
+function viewRegister(){ return pageHead("Data & model register","Provenance and method transparency — every value should be traceable to a source, a timestamp and a method.")+'<div class="card pad" style="margin-bottom:18px"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px"><div><div style="font-size:14px;font-weight:600">Current data mode</div><div class="muted" style="font-size:12.5px">'+(state.dataMode==='live'?('Live · source: '+(state.dataSource||'live')+' for '+state.city.name):('Sample data (live unavailable'+(state.liveError?': '+esc(state.liveError):'')+')'))+'</div></div>'+dataBadge()+'</div></div><div class="section-head" style="margin-top:6px"><h2>Data sources (priority order)</h2></div><div class="card pad">'+regSrc("database","1 · Data agent (GitHub Actions)","Reads pre-fetched JSON from "+AGENT_DATA_DIR+"/&lt;city&gt;.json — published on a schedule. Can include WAQI ground-sensor readings when a token is configured.",(state.dataSource&&state.dataSource.indexOf('agent')>=0)?"● ACTIVE":"Preferred")+regSrc("wind","2 · Open-Meteo (direct)","Browser calls the Copernicus CAMS model + weather directly when the agent file is missing. No key, CORS-enabled.",(state.dataSource==='open-meteo')?"● ACTIVE":"Fallback")+regSrc("activity","3 · Sample data","Built-in illustrative values so the app always works offline / on a corporate network.",(state.dataMode==='sample')?"● ACTIVE":"Last resort")+'</div><div class="section-head"><h2>Layer status</h2></div><div class="card" style="overflow:hidden"><table class="tbl"><thead><tr><th>Layer</th><th>Source</th><th>Mode</th><th>Basis</th><th>Quality flag</th></tr></thead><tbody>'+regRow("Point concentrations",(state.dataSource||"sample"),state.dataMode==='live',state.dataMode==='live'?'live':'sample',state.dataMode==='live'?((state.dataSource||'').indexOf('waqi')>=0?'Sensor+model':'Model (11km)'):'Illustrative')+regRow("Interpolated surface","Model (IDW + wind)",false,"derived","Estimate")+regRow("Wind & weather",(state.dataMode==='live'?'agent/open-meteo':'assumed'),state.dataMode==='live',state.dataMode==='live'?'live':'assumed',state.dataMode==='live'?'Observed/model':'Assumed')+regRow("Scenario outputs","Model",false,"derived","Directional")+regRow("Sensitive receptors","Open data / manual",false,"static","Reference")+'</tbody></table></div><div class="section-head"><h2>Method transparency</h2></div><div class="card pad"><details class="calc" open><summary>How the pollution surface is built</summary><div style="font-size:13px;color:var(--ink-2);padding:8px 0;line-height:1.7">1. Each point reports a concentration ('+(state.dataMode==='live'?('live from '+(state.dataSource||'source')):'sample')+').<br>2. Points are advected slightly downwind by wind direction/speed.<br>3. A grid is filled by <b>inverse-distance weighting</b>.<br>4. Overall dispersion scales with wind speed.<br>5. Each cell is coloured by its '+standardName(state.city.standard)+' band.</div></details><details class="calc"><summary>How the data agent works</summary><div style="font-size:13px;color:var(--ink-2);padding:8px 0;line-height:1.7">A scheduled GitHub Action runs a small Node script that fetches Open-Meteo (and optionally WAQI), then commits <span class="mono">data/&lt;city&gt;.json</span>. This app reads those static files from the same origin — no keys in the browser, no CORS issues, instant load. If a file is missing it falls back to calling Open-Meteo directly, then to sample data.</div></details><details class="calc"><summary>AQI standards</summary><div style="font-size:13px;color:var(--ink-2);padding:8px 0;line-height:1.7">Indian cities use India NAQI breakpoints; all other cities use EEA European AQI bands as an international reference.</div></details></div><div class="callout warn" style="margin-top:18px">'+icon('shield')+' <b>Guardrails:</b> live values are model estimates (unless a WAQI sensor value is present); interpolated/scenario values are never shown as measured; every layer carries a basis and quality flag; operational recommendations retain human approval.</div>'; }
+function regSrc(ic,t,d,status){ return '<div class="reg-src"><div class="rs-ic">'+icon(ic)+'</div><div style="flex:1"><div class="rs-t">'+t+'</div><div class="rs-d">'+d+'</div></div><div><span class="pill '+(status.indexOf('ACTIVE')>=0?'tag-live':'tag-neutral')+'" style="font-size:10.5px">'+status+'</span></div></div>'; }
+function regRow(layer,src,live,basis,flag){ return '<tr><td><b>'+layer+'</b></td><td>'+src+'</td><td><span class="pill '+(live?'tag-live':'tag-demo')+'" style="font-size:10.5px">'+(live?'live':'model/sample')+'</span></td><td class="muted" style="font-size:12px">'+basis+'</td><td><span class="pill tag-neutral" style="font-size:10.5px">'+flag+'</span></td></tr>'; }
+
+/* ============================ UTIL + EVENTS ============================ */
+function esc(s){ return (s==null?"":String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toast(msg,type){ const t=document.getElementById('toast'); document.getElementById('toast-msg').textContent=msg; t.querySelector('.dot').style.background=type==='warn'?'var(--orange)':type==='error'?'var(--red)':'var(--green)'; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2600); }
+function download(fn,c,m){ const b=new Blob([c],{type:m||'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a'); a.href=u; a.download=fn; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),1200); }
+async function selectCity(id){ if(!CITIES[id])return; const city=JSON.parse(JSON.stringify(CITIES[id])); city.bbox=cityBBox(city); state.city=city; state.cityId=id; state.selectedStation=null; state.scenario={traffic:0,construction:0,industrial:0,lez:false,ebus:0,windDir:state.weather.windDir,windSpeed:state.weather.windSpeed}; state.screen="loading"; render(); const ok=await loadLiveData(city); state.hour=new Date().getHours(); state.screen="live"; render(); toast(ok?("Loaded "+city.name+" — "+(state.dataSource||'live')):("Live unavailable — sample data for "+city.name), ok?"ok":"warn"); }
+let _wired=false;
+function wire(){ wireTooltips(); if(_wired)return; _wired=true; document.addEventListener('click',onClick); document.addEventListener('input',onInput,true); document.addEventListener('change',onChange,true); }
+function onClick(e){ const sd=e.target.closest('.stationdot'); if(sd){ state.selectedStation=state.selectedStation===sd.dataset.station?null:sd.dataset.station; if(state.screen!=='live')state.screen='live'; render(); return; } const t=e.target.closest('[data-act]'); if(!t)return; const act=t.dataset.act; switch(act){ case"selcity": selectCity(t.dataset.id); break; case"jumpgo": { const sel=document.getElementById('cityJump'); if(sel&&sel.value)selectCity(sel.value); break; } case"home": state.screen="selector"; render(); break; case"nav": state.screen=t.dataset.screen; window.scrollTo(0,0); render(); break; case"pol": state.pollutant=t.dataset.p; render(); break; case"refresh": state.screen="loading"; render(); loadLiveData(state.city).then(ok=>{state.hour=new Date().getHours();state.screen="live";render();toast(ok?("Refreshed — "+(state.dataSource||'live')):"Still unavailable — sample data",ok?"ok":"warn");}); break; case"toggle": state[t.dataset.t]=!state[t.dataset.t]; render(); break; case"selstation": state.selectedStation=state.selectedStation===t.dataset.station?null:t.dataset.station; render(); break; case"lez": state.scenario.lez=!state.scenario.lez; render(); break; case"applyscen": render(); toast("Scenario updated"); break; case"resetscen": state.scenario={traffic:0,construction:0,industrial:0,lez:false,ebus:0,windDir:state.weather.windDir,windSpeed:state.weather.windSpeed}; render(); toast("Scenario reset"); break; case"print": window.print(); break; case"exportjson": exportConfig(); break; } }
+function onChange(e){ const t=e.target.closest('[data-act]'); if(!t)return; if(t.dataset.act==='jump'){ if(t.value)selectCity(t.value); } }
+function onInput(e){ const t=e.target.closest('[data-act]'); if(!t)return; if(t.dataset.act==='hour'){ state.hour=+t.value; render(); } else if(t.dataset.act==='scen'){ state.scenario[t.dataset.key]=+t.value; const lab=t.closest('.slider-field').querySelector('.sl-val'); if(lab){ if(t.dataset.key==='windDir')lab.textContent=degToCompass(+t.value)+' ('+t.value+'°)'; else lab.textContent=t.value+' '+(t.dataset.key==='windSpeed'?'km/h':'%'); } scheduleScen(); } else if(t.dataset.act==='notes'){ state.notes=t.value; } }
+let _srT=null; function scheduleScen(){ clearTimeout(_srT); _srT=setTimeout(()=>render(),140); }
+function exportConfig(){ const cfg={version:"v3",city:state.city.name,country:state.city.country,dataMode:state.dataMode,dataSource:state.dataSource,standard:state.city.standard,pollutant:state.pollutant,weather:state.weather,scenario:state.scenario,notes:state.notes,liveFetchedAt:state.live?new Date(state.live.fetchedAt).toISOString():null,exportedAt:new Date().toISOString(),note:"Urban Environment Twin — Air Quality v3"}; download((state.city.name||'city').toLowerCase().replace(/\s+/g,'_')+"_air_twin_v3_config.json",JSON.stringify(cfg,null,2)); toast("Configuration exported"); }
+function wireTooltips(){ document.querySelectorAll('.mapwrap').forEach(wrap=>{ const scope=wrap.dataset.mapscope,tt=wrap.querySelector('.tooltip'); if(!tt)return; wrap.querySelectorAll('.stationdot').forEach(dot=>{ dot.addEventListener('mousemove',ev=>{ const st=state.city.stations.find(s=>s.id===dot.dataset.station); if(!st)return; const scen=(scope==='scen')?state.scenario:null; const node=nodeValues(scen).find(n=>n.st.id===st.id); const b=bandForConc(state.pollutant,node.value,state.city.standard); const r=wrap.getBoundingClientRect(); tt.innerHTML='<b>'+st.name+'</b><br>'+st.area+'<br>'+POLLUTANTS[state.pollutant].label+': <b>'+Math.round(node.value)+' '+POLLUTANTS[state.pollutant].unit+'</b><br><span style="color:'+b.hex+'">'+b.name+'</span>'; let x=ev.clientX-r.left+12,y=ev.clientY-r.top+12; if(x>r.width-190)x=ev.clientX-r.left-180; tt.style.left=x+'px'; tt.style.top=y+'px'; tt.style.opacity=1; }); dot.addEventListener('mouseleave',()=>{tt.style.opacity=0;}); }); }); }
+
+render();
+</script>
+</body>
+</html>
