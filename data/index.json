@@ -1,0 +1,194 @@
+{
+  "generatedAt": "2026-09-08T01:00:09.740Z",
+  "cities": [
+    {
+      "id": "losangeles",
+      "name": "Los Angeles",
+      "country": "United States",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "mexicocity",
+      "name": "Mexico City",
+      "country": "Mexico",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "santiago",
+      "name": "Santiago",
+      "country": "Chile",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "london",
+      "name": "London",
+      "country": "United Kingdom",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "helsinki",
+      "name": "Helsinki",
+      "country": "Finland",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "paris",
+      "name": "Paris",
+      "country": "France",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "berlin",
+      "name": "Berlin",
+      "country": "Germany",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "milan",
+      "name": "Milan",
+      "country": "Italy",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "warsaw",
+      "name": "Warsaw",
+      "country": "Poland",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "istanbul",
+      "name": "Istanbul",
+      "country": "Türkiye",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "dubai",
+      "name": "Dubai",
+      "country": "United Arab Emirates",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "abudhabi",
+      "name": "Abu Dhabi",
+      "country": "United Arab Emirates",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "riyadh",
+      "name": "Riyadh",
+      "country": "Saudi Arabia",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "bengaluru",
+      "name": "Bengaluru",
+      "country": "India",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "delhi",
+      "name": "Delhi",
+      "country": "India",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "mumbai",
+      "name": "Mumbai",
+      "country": "India",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "beijing",
+      "name": "Beijing",
+      "country": "China",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "shanghai",
+      "name": "Shanghai",
+      "country": "China",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "shenzhen",
+      "name": "Shenzhen",
+      "country": "China",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "guangzhou",
+      "name": "Guangzhou",
+      "country": "China",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "hongkong",
+      "name": "Hong Kong",
+      "country": "Hong Kong SAR",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "seoul",
+      "name": "Seoul",
+      "country": "South Korea",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "tokyo",
+      "name": "Tokyo",
+      "country": "Japan",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "bangkok",
+      "name": "Bangkok",
+      "country": "Thailand",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "jakarta",
+      "name": "Jakarta",
+      "country": "Indonesia",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "singapore",
+      "name": "Singapore",
+      "country": "Singapore",
+      "ok": true,
+      "error": null
+    },
+    {
+      "id": "taipei",
+      "name": "Taipei",
+      "country": "Taiwan",
+      "ok": true,
+      "error": null
+    }
+  ]
+}
