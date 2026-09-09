@@ -7,7 +7,7 @@
     12.97,
     77.59
   ],
-  "fetchedAt": "2026-09-09T00:19:03.143Z",
+  "fetchedAt": "2026-09-09T00:46:26.481Z",
   "source": "open-meteo/cams",
   "stations": [
     {
@@ -496,10 +496,10 @@
     ]
   },
   "weather": {
-    "windDir": 268,
-    "windSpeed": 10,
+    "windDir": 263,
+    "windSpeed": 9,
     "temp": 20,
-    "humidity": 95
+    "humidity": 98
   },
   "waqi": null,
   "ok": true,
