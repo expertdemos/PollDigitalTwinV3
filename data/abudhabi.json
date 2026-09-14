@@ -7,74 +7,74 @@
     24.453,
     54.377
   ],
-  "fetchedAt": "2026-09-14T07:42:49.701Z",
+  "fetchedAt": "2026-09-14T08:13:07.241Z",
   "source": "open-meteo/cams",
   "stations": [
     {
       "lat": 24.475,
       "lon": 54.322,
       "pm25": 24.6,
-      "pm10": 76.1,
-      "no2": 5,
-      "o3": 50,
+      "pm10": 81,
+      "no2": 5.2,
+      "o3": 58,
       "so2": 2.8,
-      "co": 99,
-      "european_aqi": 48
+      "co": 104,
+      "european_aqi": 50
     },
     {
       "lat": 24.36,
       "lon": 54.5,
       "pm25": 24.6,
-      "pm10": 76.1,
-      "no2": 5,
-      "o3": 50,
+      "pm10": 81,
+      "no2": 5.2,
+      "o3": 58,
       "so2": 2.8,
-      "co": 99,
-      "european_aqi": 48
+      "co": 104,
+      "european_aqi": 50
     },
     {
       "lat": 24.42,
       "lon": 54.58,
       "pm25": 24.6,
-      "pm10": 76.1,
-      "no2": 5,
-      "o3": 50,
+      "pm10": 81,
+      "no2": 5.2,
+      "o3": 58,
       "so2": 2.8,
-      "co": 103,
-      "european_aqi": 48
+      "co": 106,
+      "european_aqi": 50
     },
     {
       "lat": 24.456,
       "lon": 54.33,
       "pm25": 24.6,
-      "pm10": 76.1,
-      "no2": 5,
-      "o3": 50,
+      "pm10": 81,
+      "no2": 5.2,
+      "o3": 58,
       "so2": 2.8,
-      "co": 99,
-      "european_aqi": 48
+      "co": 104,
+      "european_aqi": 50
     },
     {
       "lat": 24.499,
       "lon": 54.607,
-      "pm25": 44.7,
-      "pm10": 136,
-      "no2": 0.7,
-      "o3": 56,
+      "pm25": 39.7,
+      "pm10": 126.7,
+      "no2": 1,
+      "o3": 67,
       "so2": 1.5,
-      "co": 99,
-      "european_aqi": 64
+      "co": 111,
+      "european_aqi": 62
     },
     {
       "lat": 24.543,
       "lon": 54.434,
       "pm25": 24.6,
-      "pm10": 76.1,
-      "no2": 5,
-      "o3": 50,
+      "pm10": 81,
+      "no2": 5.2,
+      "o3": 58,
       "so2": 2.8,
-      "co": 108,
-      "european_aqi": 48
+      "co": 113,
+      "european_aqi": 50
     }
   ],
   "hourly": {
@@ -430,10 +430,10 @@
     ]
   },
   "weather": {
-    "windDir": 178,
-    "windSpeed": 15,
+    "windDir": 183,
+    "windSpeed": 13,
     "temp": 39,
-    "humidity": 35
+    "humidity": 32
   },
   "waqi": null,
   "ok": true,
