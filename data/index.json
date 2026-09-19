@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-09-19T19:36:50.560Z",
+  "generatedAt": "2026-09-19T20:10:47.695Z",
   "cities": [
     {
       "id": "losangeles",
       "name": "Los Angeles",
       "country": "United States",
-      "ok": false,
-      "error": "fetch failed"
+      "ok": true,
+      "error": null
     },
     {
       "id": "mexicocity",
