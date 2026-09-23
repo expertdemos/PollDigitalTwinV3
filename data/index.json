@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-23T09:41:11.524Z",
+  "generatedAt": "2026-09-23T10:11:24.950Z",
   "cities": [
     {
       "id": "losangeles",
@@ -40,8 +40,8 @@
       "id": "paris",
       "name": "Paris",
       "country": "France",
-      "ok": false,
-      "error": "fetch failed"
+      "ok": true,
+      "error": null
     },
     {
       "id": "berlin",
@@ -54,8 +54,8 @@
       "id": "milan",
       "name": "Milan",
       "country": "Italy",
-      "ok": false,
-      "error": "fetch failed"
+      "ok": true,
+      "error": null
     },
     {
       "id": "warsaw",
@@ -68,22 +68,22 @@
       "id": "istanbul",
       "name": "Istanbul",
       "country": "Türkiye",
-      "ok": false,
-      "error": "fetch failed"
+      "ok": true,
+      "error": null
     },
     {
       "id": "dubai",
       "name": "Dubai",
       "country": "United Arab Emirates",
-      "ok": false,
-      "error": "fetch failed"
+      "ok": true,
+      "error": null
     },
     {
       "id": "abudhabi",
       "name": "Abu Dhabi",
       "country": "United Arab Emirates",
-      "ok": false,
-      "error": "fetch failed"
+      "ok": true,
+      "error": null
     },
     {
       "id": "riyadh",
@@ -96,8 +96,8 @@
       "id": "bengaluru",
       "name": "Bengaluru",
       "country": "India",
-      "ok": false,
-      "error": "fetch failed"
+      "ok": true,
+      "error": null
     },
     {
       "id": "delhi",
