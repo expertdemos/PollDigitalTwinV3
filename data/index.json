@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-27T22:41:04.608Z",
+  "generatedAt": "2026-09-27T23:10:39.375Z",
   "cities": [
     {
       "id": "losangeles",
@@ -173,8 +173,8 @@
       "id": "jakarta",
       "name": "Jakarta",
       "country": "Indonesia",
-      "ok": false,
-      "error": "fetch failed"
+      "ok": true,
+      "error": null
     },
     {
       "id": "singapore",
@@ -187,8 +187,8 @@
       "id": "taipei",
       "name": "Taipei",
       "country": "Taiwan",
-      "ok": false,
-      "error": "fetch failed"
+      "ok": true,
+      "error": null
     }
   ]
 }
