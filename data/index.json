@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-29T04:12:16.531Z",
+  "generatedAt": "2026-09-29T04:43:05.709Z",
   "cities": [
     {
       "id": "losangeles",
@@ -12,8 +12,8 @@
       "id": "mexicocity",
       "name": "Mexico City",
       "country": "Mexico",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "santiago",
@@ -26,8 +26,8 @@
       "id": "london",
       "name": "London",
       "country": "United Kingdom",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "helsinki",
@@ -40,8 +40,8 @@
       "id": "paris",
       "name": "Paris",
       "country": "France",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "berlin",
@@ -54,8 +54,8 @@
       "id": "milan",
       "name": "Milan",
       "country": "Italy",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "warsaw",
@@ -68,8 +68,8 @@
       "id": "istanbul",
       "name": "Istanbul",
       "country": "Türkiye",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "dubai",
@@ -82,8 +82,8 @@
       "id": "abudhabi",
       "name": "Abu Dhabi",
       "country": "United Arab Emirates",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "riyadh",
@@ -96,8 +96,8 @@
       "id": "bengaluru",
       "name": "Bengaluru",
       "country": "India",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "delhi",
@@ -110,8 +110,8 @@
       "id": "mumbai",
       "name": "Mumbai",
       "country": "India",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "beijing",
@@ -124,8 +124,8 @@
       "id": "shanghai",
       "name": "Shanghai",
       "country": "China",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "shenzhen",
@@ -138,8 +138,8 @@
       "id": "guangzhou",
       "name": "Guangzhou",
       "country": "China",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "hongkong",
@@ -152,8 +152,8 @@
       "id": "seoul",
       "name": "Seoul",
       "country": "South Korea",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "tokyo",
@@ -166,8 +166,8 @@
       "id": "bangkok",
       "name": "Bangkok",
       "country": "Thailand",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "jakarta",
@@ -180,8 +180,8 @@
       "id": "singapore",
       "name": "Singapore",
       "country": "Singapore",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "taipei",
