@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-30T03:44:10.810Z",
+  "generatedAt": "2026-09-30T04:12:42.987Z",
   "cities": [
     {
       "id": "losangeles",
@@ -12,8 +12,8 @@
       "id": "mexicocity",
       "name": "Mexico City",
       "country": "Mexico",
-      "ok": false,
-      "error": "fetch failed"
+      "ok": true,
+      "error": null
     },
     {
       "id": "santiago",
