@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-13T21:13:18.268Z",
+  "generatedAt": "2026-11-14T01:36:10.273Z",
   "cities": [
     {
       "id": "losangeles",
@@ -12,8 +12,8 @@
       "id": "mexicocity",
       "name": "Mexico City",
       "country": "Mexico",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "santiago",
@@ -26,29 +26,29 @@
       "id": "london",
       "name": "London",
       "country": "United Kingdom",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "helsinki",
       "name": "Helsinki",
       "country": "Finland",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "paris",
       "name": "Paris",
       "country": "France",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "berlin",
       "name": "Berlin",
       "country": "Germany",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "milan",
