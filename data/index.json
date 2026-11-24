@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-23T18:37:20.990Z",
+  "generatedAt": "2026-11-24T04:12:00.806Z",
   "cities": [
     {
       "id": "losangeles",
@@ -19,15 +19,15 @@
       "id": "santiago",
       "name": "Santiago",
       "country": "Chile",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "london",
       "name": "London",
       "country": "United Kingdom",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "helsinki",
@@ -47,15 +47,15 @@
       "id": "berlin",
       "name": "Berlin",
       "country": "Germany",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "milan",
       "name": "Milan",
       "country": "Italy",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "warsaw",
@@ -75,22 +75,22 @@
       "id": "dubai",
       "name": "Dubai",
       "country": "United Arab Emirates",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "abudhabi",
       "name": "Abu Dhabi",
       "country": "United Arab Emirates",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "riyadh",
       "name": "Riyadh",
       "country": "Saudi Arabia",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "bengaluru",
@@ -103,22 +103,22 @@
       "id": "delhi",
       "name": "Delhi",
       "country": "India",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "mumbai",
       "name": "Mumbai",
       "country": "India",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "beijing",
       "name": "Beijing",
       "country": "China",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "shanghai",
