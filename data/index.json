@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-27T21:52:03.688Z",
+  "generatedAt": "2026-11-28T03:44:01.987Z",
   "cities": [
     {
       "id": "losangeles",
@@ -26,8 +26,8 @@
       "id": "london",
       "name": "London",
       "country": "United Kingdom",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "helsinki",
@@ -40,8 +40,8 @@
       "id": "paris",
       "name": "Paris",
       "country": "France",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "berlin",
@@ -54,8 +54,8 @@
       "id": "milan",
       "name": "Milan",
       "country": "Italy",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "warsaw",
@@ -75,15 +75,15 @@
       "id": "dubai",
       "name": "Dubai",
       "country": "United Arab Emirates",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "abudhabi",
       "name": "Abu Dhabi",
       "country": "United Arab Emirates",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "riyadh",
@@ -96,8 +96,8 @@
       "id": "bengaluru",
       "name": "Bengaluru",
       "country": "India",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "delhi",
@@ -110,8 +110,8 @@
       "id": "mumbai",
       "name": "Mumbai",
       "country": "India",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "beijing",
@@ -145,15 +145,15 @@
       "id": "hongkong",
       "name": "Hong Kong",
       "country": "Hong Kong SAR",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "seoul",
       "name": "Seoul",
       "country": "South Korea",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "tokyo",
@@ -166,15 +166,15 @@
       "id": "bangkok",
       "name": "Bangkok",
       "country": "Thailand",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "jakarta",
       "name": "Jakarta",
       "country": "Indonesia",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     },
     {
       "id": "singapore",
@@ -187,8 +187,8 @@
       "id": "taipei",
       "name": "Taipei",
       "country": "Taiwan",
-      "ok": true,
-      "error": null
+      "ok": false,
+      "error": "fetch failed"
     }
   ]
 }
